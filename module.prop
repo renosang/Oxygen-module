@@ -1,0 +1,6 @@
+id=op_android16_app_suite
+name=OxygenOS 16 Application Extension
+version=v2026.1
+versionCode=202601
+author=Renosang
+description=Gói mở rộng ứng dụng hệ thống và tiện ích cho OnePlus trên Android 16. Tự động triển khai hàng loạt APK tương thích cao mà không làm ảnh hưởng tới hệ thống gốc.

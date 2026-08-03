@@ -1,0 +1,10 @@
+scratch_nuker/
+*.exe
+*.dll
+adb
+fastboot
+bootctl
+hprof-conv
+etc1tool
+fetch.ps1
+fetch_icons.py
