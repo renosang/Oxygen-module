@@ -32,14 +32,14 @@
         <button class="tab-btn active" id="tab-btn-info" onclick="window.switchTab('info')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg><span>Thông Tin</span>
         </button>
-        <button class="tab-btn" id="tab-btn-features" onclick="window.switchTab('features')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span>Tính Năng</span>
-        </button>
         <button class="tab-btn" id="tab-btn-freeze" onclick="window.switchTab('freeze')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><line x1="12" y1="2" x2="15" y2="5"></line><line x1="12" y1="2" x2="9" y2="5"></line><line x1="12" y1="22" x2="15" y2="19"></line><line x1="12" y1="22" x2="9" y2="19"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="12" x2="5" y2="9"></line><line x1="2" y1="12" x2="5" y2="15"></line><line x1="22" y1="12" x2="19" y2="9"></line><line x1="22" y1="12" x2="19" y2="15"></line></svg><span>Đóng Băng</span>
         </button>
         <button class="tab-btn" id="tab-btn-apk" onclick="window.switchTab('apk')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Cài App APK</span>
+        </button>
+        <button class="tab-btn" id="tab-btn-tweaks" onclick="window.switchTab('tweaks')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg><span>Tiện Ích</span>
         </button>
     </div>
 
@@ -48,18 +48,120 @@
         <div class="glass-card">
             <div class="card-title">
                 <span style="display:flex; align-items:center; gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Thông tin thiết bị</span>
-                <button class="btn" onclick="window.fetchDeviceInfo()">
-                    <span id="refresh-icon-info" class="refresh-icon">↻</span> <span id="refresh-text-info">Cập nhật</span>
-                </button>
+                <span style="font-size: 10px; color: var(--green); display:flex; align-items:center; gap:4px; border: 1px solid rgba(0,230,118,0.3); padding: 2px 6px; border-radius: 4px; background: rgba(0,230,118,0.1);"><div class="status-dot" style="background: var(--green);"></div> Realtime</span>
             </div>
-            <div class="info-grid">
-                <div class="info-item"><div class="info-label">Thương hiệu</div><div class="info-value accent-red" id="info-brand">-</div></div>
-                <div class="info-item"><div class="info-label">Model Thiết bị</div><div class="info-value" id="info-model">-</div></div>
-                <div class="info-item"><div class="info-label">Phiên bản Android</div><div class="info-value accent-cyan" id="info-android">-</div></div>
-                <div class="info-item"><div class="info-label">Bản dựng OS</div><div class="info-value" id="info-build">-</div></div>
-                <div class="info-item full-width"><div class="info-label">Linux Kernel</div><div class="info-value" style="font-size:11px;" id="info-kernel">-</div></div>
-                <div class="info-item"><div class="info-label">Dung lượng /data</div><div class="info-value" id="info-storage">-</div></div>
-                <div class="info-item"><div class="info-label">Tình trạng Pin</div><div class="info-value" id="info-battery">-</div></div>
+            <!-- Modern Device Identity Section -->
+            <div class="device-identity">
+                <div class="device-icon" style="background: transparent; box-shadow: none; width: auto; height: auto;">
+                    <!-- Highly Detailed Smartphone Icon -->
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 0px 8px rgba(0,242,254,0.6));">
+                        <rect x="4" y="2" width="16" height="20" rx="3" ry="3" fill="rgba(0, 242, 254, 0.1)" stroke="var(--cyan)" stroke-width="1.5"></rect>
+                        <!-- Top speaker/camera notch -->
+                        <path d="M9 2h6v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V2z" fill="var(--cyan)" stroke="none"></path>
+                        <!-- Screen inner glow -->
+                        <rect x="5.5" y="6" width="13" height="12" rx="1" fill="rgba(0, 242, 254, 0.2)" stroke="none"></rect>
+                        <!-- Bottom button -->
+                        <circle cx="12" cy="20" r="1.5" fill="var(--cyan)" stroke="none"></circle>
+                    </svg>
+                </div>
+                <div class="device-names">
+                    <div id="info-brand" class="brand-text">-</div>
+                    <div id="info-model" class="model-text">-</div>
+                </div>
+            </div>
+
+            <!-- System Badges -->
+            <div class="system-badges">
+                <div class="sys-badge badge-android">
+                    <!-- Android Bugdroid outline -->
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 18h12M6 22h12M12 2v4M8 6h8a4 4 0 0 1 4 4v8H4v-8a4 4 0 0 1 4-4zM8 10h.01M16 10h.01"></path>
+                    </svg>
+                    <span id="info-android">-</span>
+                </div>
+                <div class="sys-badge badge-os">
+                    <!-- OS Layer / System Build -->
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    <span id="info-build">-</span>
+                </div>
+                <div class="sys-badge badge-kernel">
+                    <!-- Kernel / CPU Chip -->
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                        <line x1="20" y1="9" x2="23" y2="9"></line>
+                        <line x1="20" y1="14" x2="23" y2="14"></line>
+                        <line x1="1" y1="9" x2="4" y2="9"></line>
+                        <line x1="1" y1="14" x2="4" y2="14"></line>
+                    </svg>
+                    <span id="info-kernel">-</span>
+                </div>
+            </div>
+            <div style="margin-top: 16px;"></div>
+            
+            <!-- One UI Widgets Row 1: RAM & Storage -->
+            <div class="widget-row">
+                <div class="widget-card">
+                    <div class="widget-title">Bộ nhớ RAM</div>
+                    <div class="donut-container">
+                        <div class="donut-chart" id="widget-ram-donut" style="--percent: 0%; --chart-color: var(--cyan);">
+                            <div class="donut-hole">
+                                <span id="widget-ram-free">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:6px; font-size:11px; margin-top:12px; padding: 0 4px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:var(--text-sub);">Đã dùng</span>
+                            <span id="widget-ram-used" style="color:var(--text-main); font-weight:600;">-</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:var(--text-sub);">Tổng RAM</span>
+                            <span id="widget-ram-total" style="color:var(--text-main); font-weight:600;">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-card">
+                    <div class="widget-title">Lưu trữ /data</div>
+                    <div class="donut-container">
+                        <div class="donut-chart" id="widget-storage-donut" style="--percent: 0%; --chart-color: var(--yellow);">
+                            <div class="donut-hole">
+                                <span id="widget-storage-free">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:6px; font-size:11px; margin-top:12px; padding: 0 4px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:var(--text-sub);">Đã dùng</span>
+                            <span id="widget-storage-used" style="color:var(--text-main); font-weight:600;">-</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:var(--text-sub);">Tổng ROM</span>
+                            <span id="widget-storage-total" style="color:var(--text-main); font-weight:600;">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- One UI Widgets Row 2: Battery -->
+            <div class="widget-card" style="margin-bottom:12px; padding-bottom:20px;">
+                <div class="widget-title">Tình trạng Pin</div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <div class="widget-main-val" id="widget-battery-percent">--%</div>
+                    <div class="widget-sub-val" id="widget-battery-health" style="color:var(--green);">--</div>
+                </div>
+                <div class="pill-bar">
+                    <div class="pill-fill" id="widget-battery-fill" style="--percent: 0%; --chart-color: var(--green);"></div>
+                </div>
             </div>
         </div>
         
@@ -78,80 +180,7 @@
         </div>
     </div>
 
-    <!-- TAB 4: TÍNH NĂNG MỞ RỘNG -->
-    <div id="tab-features" class="tab-content">
-        <div class="glass-card">
-            <div class="card-title">
-                <span style="display:flex; align-items:center; gap:6px;">
-                    <svg width="18" height="18" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M96 96V0a96 96 0 0 1 96 96H96Z" fill="#EA4335"/>
-                        <path d="M96 96H192a96 96 0 0 1-96 96V96Z" fill="#FBBC04"/>
-                        <path d="M96 96V192a96 96 0 0 1-96-96H96Z" fill="#34A853"/>
-                        <path d="M96 96H0a96 96 0 0 1 96-96V96Z" fill="#4285F4"/>
-                    </svg>
-                    Google Photos (Không Giới Hạn)
-                </span>
-            </div>
-            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">
-                Đánh lừa thiết bị thành Google Pixel để sao lưu ảnh chất lượng gốc miễn phí.<br><br>
-                <b style="color:var(--yellow)">Yêu cầu:</b><br>
-                - Xóa dữ liệu ứng dụng Google Photos sau khi kích hoạt<br>
-                - Khởi động lại thiết bị để áp dụng
-            </div>
-            
-            <div class="list-container" style="max-height: unset; margin-bottom: 12px; margin-top: 0; padding-right: 0;">
-                <!-- App Photos -->
-                <div class="list-item" style="padding: 10px 14px; margin-bottom: 8px;">
-                    <div class="item-icon" style="font-size: 20px; width: 38px; height: 38px; background: rgba(255,255,255,0.04); border-radius: 8px; display:flex; align-items:center; justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4d4d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                    </div>
-                    <div class="item-details">
-                        <div class="item-name">Google Photos</div>
-                        <div class="item-sub" id="info-photos-ver" style="white-space: normal; line-height: 1.3;">Version ...</div>
-                    </div>
-                    <div id="badge-photos" class="badge" style="display:flex; align-items:center; gap:4px; font-size:10px; padding: 4px 8px;">
-                        Checking
-                    </div>
-                </div>
 
-                <!-- App GMS -->
-                <div class="list-item" style="padding: 10px 14px; margin-bottom: 8px;">
-                    <div class="item-icon" style="font-size: 20px; width: 38px; height: 38px; background: rgba(255,255,255,0.04); border-radius: 8px; display:flex; align-items:center; justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4d4d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-                    </div>
-                    <div class="item-details">
-                        <div class="item-name">Google Play Services</div>
-                        <div class="item-sub" id="info-gms-ver" style="white-space: normal; line-height: 1.3;">Version ...</div>
-                    </div>
-                    <div id="badge-gms" class="badge" style="display:flex; align-items:center; gap:4px; font-size:10px; padding: 4px 8px;">
-                        Checking
-                    </div>
-                </div>
-
-                <!-- Module Meta -->
-                <div class="list-item" style="padding: 10px 14px; margin-bottom: 8px;">
-                    <div class="item-icon" style="font-size: 20px; width: 38px; height: 38px; background: rgba(255,255,255,0.04); border-radius: 8px; display:flex; align-items:center; justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4d4d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                    </div>
-                    <div class="item-details">
-                        <div class="item-name">Meta Module</div>
-                        <div class="item-sub" id="info-meta-name" style="white-space: normal; line-height: 1.3;">Name ...</div>
-                    </div>
-                    <div id="badge-meta" class="badge" style="display:flex; align-items:center; gap:4px; font-size:10px; padding: 4px 8px;">
-                        Checking
-                    </div>
-                </div>
-            </div>
-
-            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.06); padding: 12px 14px; border-radius: var(--radius-lg);">
-                <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase;">Trạng thái tính năng</div>
-                <div class="info-value" id="info-photos-status" style="white-space: pre-wrap; line-height: 1.4;">Đang tải...</div>
-            </div>
-            <button class="btn btn-log" id="btn-toggle-photos" style="margin-top: 12px; display:flex; width:100%; justify-content:center; font-weight:bold;" onclick="window.togglePhotosFeature()">
-                Kiểm tra trạng thái...
-            </button>
-        </div>
-    </div>
 
     <!-- TAB 2: ĐÓNG BĂNG -->
     <div id="tab-freeze" class="tab-content">
@@ -198,6 +227,258 @@
         </div>
     </div>
 
+    <!-- TAB 4: TIỆN ÍCH MỞ RỘNG (TWEAKS) -->
+    <div id="tab-tweaks" class="tab-content">
+        <!-- 0. Google Photos -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;">
+                    <svg width="18" height="18" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M96 96V0a96 96 0 0 1 96 96H96Z" fill="#EA4335"/>
+                        <path d="M96 96H192a96 96 0 0 1-96 96V96Z" fill="#FBBC04"/>
+                        <path d="M96 96V192a96 96 0 0 1-96-96H96Z" fill="#34A853"/>
+                        <path d="M96 96H0a96 96 0 0 1 96-96V96Z" fill="#4285F4"/>
+                    </svg>
+                    Google Photos (Không Giới Hạn)
+                </span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">
+                Đánh lừa thiết bị thành Google Pixel để sao lưu ảnh chất lượng gốc miễn phí. <br>
+                <b style="color:var(--yellow)">Yêu cầu:</b> Cần xóa dữ liệu ứng dụng Google Photos và Khởi động lại thiết bị để áp dụng.
+            </div>
+            
+            <!-- Trạng thái chi tiết (Đã khôi phục như cũ) -->
+            <div class="list-container" style="max-height: unset; margin-bottom: 12px; margin-top: 0; padding-right: 0;">
+                <div class="list-item" style="padding: 10px 14px; margin-bottom: 8px;">
+                    <div class="item-icon" style="font-size: 20px; width: 38px; height: 38px; background: rgba(255,255,255,0.04); border-radius: 8px; display:flex; align-items:center; justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4d4d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">Google Photos</div>
+                        <div class="item-sub" id="info-photos-ver" style="white-space: normal; line-height: 1.3;">Đang kiểm tra...</div>
+                    </div>
+                    <div id="badge-photos" class="badge" style="display:flex; align-items:center; gap:4px; font-size:10px; padding: 4px 8px;">
+                        Checking
+                    </div>
+                </div>
+
+                <div class="list-item" style="padding: 10px 14px; margin-bottom: 8px;">
+                    <div class="item-icon" style="font-size: 20px; width: 38px; height: 38px; background: rgba(255,255,255,0.04); border-radius: 8px; display:flex; align-items:center; justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4d4d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">Google Play Services</div>
+                        <div class="item-sub" id="info-gms-ver" style="white-space: normal; line-height: 1.3;">Đang kiểm tra...</div>
+                    </div>
+                    <div id="badge-gms" class="badge" style="display:flex; align-items:center; gap:4px; font-size:10px; padding: 4px 8px;">
+                        Checking
+                    </div>
+                </div>
+
+                <div class="list-item" style="padding: 10px 14px; margin-bottom: 8px;">
+                    <div class="item-icon" style="font-size: 20px; width: 38px; height: 38px; background: rgba(255,255,255,0.04); border-radius: 8px; display:flex; align-items:center; justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4d4d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">Meta Module</div>
+                        <div class="item-sub" id="info-meta-name" style="white-space: normal; line-height: 1.3;">Đang kiểm tra...</div>
+                    </div>
+                    <div id="badge-meta" class="badge" style="display:flex; align-items:center; gap:4px; font-size:10px; padding: 4px 8px;">
+                        Checking
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.06); padding: 12px 14px; border-radius: var(--radius-lg); margin-bottom: 12px;">
+                <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase;">Trạng thái hệ thống</div>
+                <div class="info-value" id="info-photos-status" style="white-space: pre-wrap; line-height: 1.4;">Đang tải...</div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-primary" id="btn-toggle-photos" style="flex:1;" onclick="window.togglePhotosFeature()">Thiết Lập (Bật/Tắt)</button>
+            </div>
+        </div>
+
+        <!-- 1. Systemless Ad-Blocker -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg> Chặn Quảng Cáo (Ad-Blocker)</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Ngăn chặn quảng cáo trên toàn hệ thống bằng cách ghi đè hosts (Systemless). Chặn theo danh sách tự động từ StevenBlack.</div>
+            
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.06); padding: 12px 14px; border-radius: var(--radius-lg); margin-bottom: 12px;">
+                <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase;">Trạng thái hiện tại</div>
+                <div class="info-value" id="adblock-status" style="white-space: pre-wrap; line-height: 1.4;">Đang tải...</div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-primary" id="btn-toggle-adblock" style="flex:1;" onclick="window.toggleAdblock()">Bật / Tắt</button>
+                <button class="btn" style="flex:1;" onclick="window.updateAdblock()">
+                    <span id="refresh-icon-adblock" class="refresh-icon">↻</span> Đồng bộ Data
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. 1-Click Debloat -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> 1-Click Debloat OxygenOS</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Tự động vô hiệu hóa các ứng dụng nội bộ không cần thiết của hãng (như App Market, Theme Store, Analytics) một cách cực kỳ an toàn.</div>
+            
+            <div id="debloat-progress-container" style="display: none; margin-bottom: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; overflow: hidden; height: 8px;">
+                <div id="debloat-progress-bar" style="width: 0%; height: 100%; background: var(--yellow); transition: width 0.3s ease;"></div>
+            </div>
+            <div id="debloat-status-text" style="font-size: 11px; color: var(--cyan); margin-bottom: 12px; display: none;">Đang chờ xử lý...</div>
+            
+            <!-- Danh sách các ứng dụng đã xử lý -->
+            <div id="debloat-apps-list" style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin-bottom: 12px; font-size: 11px; display: none; color: var(--text-sub); font-family: monospace;"></div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-primary" style="flex:1;" onclick="window.runDebloat()">Dọn Dẹp Ngay</button>
+                <button class="btn btn-cancel" style="flex:1;" onclick="window.restoreDebloat()">Khôi Phục</button>
+            </div>
+        </div>
+
+        <!-- 3. Performance Profiles -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Cấu hình Hiệu năng (Profiles)</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Chuyển đổi cấu hình CPU và hệ thống tức thì. Chọn chế độ phù hợp với nhu cầu sử dụng (Tiết kiệm năng lượng hoặc hiệu suất tối đa).</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%;">
+                <button id="profile-btn-battery" class="btn" style="padding: 12px 2px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyProfile('battery')">
+                    <div style="font-size:18px; margin-bottom:6px;">🔋</div>Tiết Kiệm
+                </button>
+                <button id="profile-btn-balanced" class="btn profile-active" style="padding: 12px 2px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyProfile('balanced')">
+                    <div style="font-size:18px; margin-bottom:6px;">⚖️</div>Cân Bằng
+                </button>
+                <button id="profile-btn-performance" class="btn" style="padding: 12px 2px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyProfile('performance')">
+                    <div style="font-size:18px; margin-bottom:6px;">🚀</div>Chơi Game
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. GMS Doze & Battery Optimization -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg> Tối ưu GMS & Ngủ Sâu (Doze)</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Đưa dịch vụ Google Play (GMS) vào chế độ ngủ sâu (Doze) để giảm tối đa tình trạng ngốn pin nền.</div>
+            
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.06); padding: 12px 14px; border-radius: var(--radius-lg); margin-bottom: 12px;">
+                <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase;">Trạng thái hiện tại</div>
+                <div class="info-value" id="gms-doze-status" style="white-space: pre-wrap; line-height: 1.4;">Chưa kích hoạt</div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-primary" id="btn-toggle-gms" style="flex:1;" onclick="window.toggleGmsDoze()">Tối ưu ngay</button>
+                <button class="btn btn-cancel" style="flex:1;" onclick="window.restoreGms()">Khôi phục</button>
+            </div>
+        </div>
+
+        <!-- 5. DNS Manager -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b388ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Quản lý mạng DNS</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Chuyển đổi DNS phân giải hệ thống để tăng tốc độ lướt web, giảm ping hoặc chặn tên miền độc hại.</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%;">
+                <button id="dns-btn-cloudflare" class="btn" style="padding: 10px 4px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyDNS('cloudflare')">
+                    <div style="font-size:16px; margin-bottom:4px;">☁️</div>Cloudflare
+                </button>
+                <button id="dns-btn-google" class="btn" style="padding: 10px 4px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyDNS('google')">
+                    <div style="font-size:16px; margin-bottom:4px;">🌐</div>Google
+                </button>
+                <button id="dns-btn-adguard" class="btn" style="padding: 10px 4px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyDNS('adguard')">
+                    <div style="font-size:16px; margin-bottom:4px;">🛡️</div>AdGuard
+                </button>
+                <button id="dns-btn-default" class="btn profile-active" style="padding: 10px 4px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyDNS('default')">
+                    <div style="font-size:16px; margin-bottom:4px;">🏠</div>Mặc Định
+                </button>
+            </div>
+        </div>
+
+        <!-- 6. Display Refresh Rate -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg> Khóa Tần Số Quét (Refresh Rate)</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Ép hệ thống luôn giữ tần số quét cao (bỏ qua giới hạn của nhà sản xuất).</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%;">
+                <button id="hz-btn-60" class="btn" style="padding: 12px 2px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyRefreshRate(60)">
+                    <div style="font-size:16px; margin-bottom:2px; font-weight:900;">60</div>Hz
+                </button>
+                <button id="hz-btn-90" class="btn" style="padding: 12px 2px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyRefreshRate(90)">
+                    <div style="font-size:16px; margin-bottom:2px; font-weight:900;">90</div>Hz
+                </button>
+                <button id="hz-btn-120" class="btn" style="padding: 12px 2px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: all 0.3s;" onclick="window.applyRefreshRate(120)">
+                    <div style="font-size:16px; margin-bottom:2px; font-weight:900;">120</div>Hz
+                </button>
+            </div>
+        </div>
+
+        <!-- 7. Anti-App Kill (Đa Nhiệm & RAM) -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg> Chống Văng App (Anti-App Kill)</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Tắt cơ chế diệt ứng dụng ngầm (Phantom Process Killer) và tăng bộ nhớ Cache RAM. Giúp trải nghiệm đa nhiệm mượt mà, không bị load lại app.</div>
+            
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.06); padding: 12px 14px; border-radius: var(--radius-lg); margin-bottom: 12px;">
+                <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase;">Trạng thái hiện tại</div>
+                <div class="info-value" id="anti-kill-status" style="white-space: pre-wrap; line-height: 1.4;">Chưa tối ưu</div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-primary" style="flex:1;" onclick="window.toggleAntiAppKill()">Tối ưu Đa nhiệm</button>
+            </div>
+        </div>
+
+        <!-- 8. Deep Cache Cleaner -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Dọn Rác Hệ Thống (Deep Clean)</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Xóa sạch các file log, file báo lỗi (tombstones) và rác sinh ra trong quá trình sử dụng hệ thống để giải phóng hàng GB dung lượng trống.</div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-log" style="flex:1; margin-top:0;" onclick="window.runDeepClean()">Quét & Dọn Dẹp Ngay</button>
+            </div>
+        </div>
+
+        <!-- 9. Tùy chỉnh Hiển thị & Animation -->
+        <div class="glass-card">
+            <div class="card-title">
+                <span style="display:flex; align-items:center; gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg> Tùy chỉnh Tốc độ & Hiển thị</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">Giảm tốc độ hiệu ứng (Animation) để thao tác phản hồi cực nhanh, hoặc thay đổi độ phân giải (DPI) để màn hình rộng rãi hơn.</div>
+            
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.06); padding: 12px 14px; border-radius: var(--radius-lg); margin-bottom: 12px;">
+                <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 10px; text-transform: uppercase; display: flex; justify-content: space-between;">
+                    <span>Tốc độ Hiệu ứng (Animation)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <button id="anim-btn-1" class="btn profile-active" style="padding:8px 2px;" onclick="window.applyAnimation(1)">Mặc định (1x)</button>
+                    <button id="anim-btn-05" class="btn" style="padding:8px 2px;" onclick="window.applyAnimation(0.5)">Nhanh (0.5x)</button>
+                    <button id="anim-btn-0" class="btn" style="padding:8px 2px;" onclick="window.applyAnimation(0)">Tắt hẳn (0x)</button>
+                </div>
+
+                <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 10px; margin-top: 14px; text-transform: uppercase; display: flex; justify-content: space-between;">
+                    <span>Thay đổi kích thước hiển thị (DPI)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <button class="btn" style="padding:8px 2px; background: rgba(255,255,255,0.05);" onclick="window.applyDPI(420)">Rộng rãi (420)</button>
+                    <button class="btn" style="padding:8px 2px; background: rgba(255,255,255,0.05);" onclick="window.applyDPI(450)">Rất rộng (450)</button>
+                    <button class="btn btn-cancel" style="padding:8px 2px;" onclick="window.applyDPI('reset')">Khôi phục gốc</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL BẢNG CONSOLE LOGS -->
     <div id="debug-overlay">
         <div class="terminal-window">
@@ -236,11 +517,12 @@
     <script src="js/freeze.js"></script>
     <script src="js/apk.js"></script>
     <script src="js/photos.js"></script>
+    <script src="js/tweaks.js"></script>
 
     <script>
         // UI Tabs Switcher
         window.switchTab = function(tabName) {
-            const tabs = ['info', 'features', 'freeze', 'apk'];
+            const tabs = ['info', 'freeze', 'apk', 'tweaks'];
             tabs.forEach(t => {
                 const btn = document.getElementById('tab-btn-' + t);
                 const cnt = document.getElementById('tab-' + t);
@@ -253,6 +535,7 @@
             if(tabName === 'info') window.fetchDeviceInfo();
             if(tabName === 'freeze' && window.allAppsList.length === 0) window.loadAllApps();
             if(tabName === 'apk' && !document.querySelector('.vn-app-row')) window.loadVnEssentialApps();
+            if(tabName === 'tweaks' && window.checkAdblockStatus) window.checkAdblockStatus();
         };
 
         // Khởi động khi mở ứng dụng
