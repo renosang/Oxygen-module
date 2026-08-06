@@ -50,7 +50,7 @@ window.KernelAPI = {
 
 // --- 3. HÀM RUNSHELL ---
 window.runShell = async function(cmd, timeoutMs = 15000) {
-    window.logMsg(`> Đang chạy: ${cmd.substring(0, 40)}...`, 'cmd');
+    window.logMsg(`> Đang chạy: ${cmd}`, 'cmd');
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout "+timeoutMs+"ms")), timeoutMs));
 
     try {

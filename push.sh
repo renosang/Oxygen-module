@@ -25,6 +25,7 @@ if [ "$opt" = "2" ]; then
     
     adb push webroot /data/local/tmp/addon/webroot
     adb push system /data/local/tmp/addon/system
+    adb push zygisk /data/local/tmp/addon/zygisk
     adb push module.prop /data/local/tmp/addon/module.prop
     adb push customize.sh /data/local/tmp/addon/customize.sh
     adb push action.sh /data/local/tmp/addon/action.sh

@@ -6,14 +6,8 @@
 MODDIR=${0%/*}
 MODPATH="$MODDIR"
 
-# Bind-монтирование содержимого system/
-if [ -d "$MODPATH/system" ]; then
-    find "$MODPATH/system" -type f | while IFS= read -r file; do
-        target_path="/${file#"$MODPATH"}"
-        mkdir -p "$(dirname "$target_path")"
-        mount --bind "$file" "$target_path"
-    done
-fi
+# KernelSU/Magisk natively handles system/ overlayfs.
+# Manual bind mounting is removed to fix SELinux context issues with sysconfig XMLs.
 
 # Обработка extension-файлов
 for dir in /my_product/etc/extension/ /my_region/etc/extension/ /my_bigball/etc/extension; do
