@@ -52,13 +52,20 @@ export default function TweaksTab() {
     }
   };
 
+  // Custom Modal State
+  const [modalMsg, setModalMsg] = useState('');
+
+  const showAlert = (msg: string) => {
+    setModalMsg(msg);
+  };
+
   // 1. Google Photos
   const enablePhotos = async () => {
     logMsg("Đang kích hoạt Google Photos (Fake Pixel)...");
     const modpath = getModPath();
     await runShell(`sh ${modpath}/enable_photos.sh ${modpath}`);
     setPhotosEnabled(true);
-    alert("Kích hoạt Google Photos thành công! Vui lòng khởi động lại máy.");
+    showAlert("Kích hoạt Google Photos thành công! Vui lòng khởi động lại máy.");
   };
 
   // 2. AdBlock
@@ -72,13 +79,13 @@ export default function TweaksTab() {
       logMsg("Đang tắt Ad-Blocker...");
       await runShell(`rm -f ${getModPath()}/system/etc/hosts`);
       setAdblockStatus(false);
-      alert("Đã tắt Ad-Blocker. Vui lòng khởi động lại thiết bị.");
+      showAlert("Đã tắt Ad-Blocker. Vui lòng khởi động lại thiết bị.");
     } else {
       logMsg("Đang tải dữ liệu Ad-Blocker...");
       await runShell(`mkdir -p ${getModPath()}/system/etc && curl -s -o ${getModPath()}/system/etc/hosts "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"`);
       await runShell(`chmod 644 ${getModPath()}/system/etc/hosts`);
       setAdblockStatus(true);
-      alert("Tải file hosts thành công! Vui lòng khởi động lại máy để áp dụng.");
+      showAlert("Tải file hosts thành công! Vui lòng khởi động lại máy để áp dụng.");
     }
   };
 
@@ -109,15 +116,16 @@ export default function TweaksTab() {
     setProfile(p);
     let cmd = "";
     if (p === 'battery') {
-      cmd = `settings put global low_power 1; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "powersave" > $gov 2>/dev/null || echo "schedutil" > $gov 2>/dev/null; done`;
+      cmd = `settings put global low_power 1; settings put system performance_mode_state 0; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "powersave" > $gov 2>/dev/null || echo "schedutil" > $gov 2>/dev/null; done`;
     } else if (p === 'balanced') {
-      cmd = `settings put global low_power 0; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "schedutil" > $gov 2>/dev/null; done`;
+      cmd = `settings put global low_power 0; settings put system performance_mode_state 0; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "schedutil" > $gov 2>/dev/null; done`;
     } else if (p === 'performance') {
-      cmd = `settings put global low_power 0; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "performance" > $gov 2>/dev/null; done`;
+      cmd = `settings put global low_power 0; settings put system performance_mode_state 1; settings put system user_mode_high_performance 1; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "performance" > $gov 2>/dev/null; done`;
     }
     await runShell(cmd);
     await updateBootScript('CPU_PROFILE', cmd, false);
     logMsg(`Đã áp dụng cấu hình: ${p.toUpperCase()}`);
+    showAlert(`Đã kích hoạt chế độ ${p.toUpperCase()} thành công!`);
   };
 
   // 5. GMS Doze
@@ -149,12 +157,20 @@ export default function TweaksTab() {
   };
 
   // 7. Refresh Rate
-  const applyRefreshRate = async (rate: number) => {
-    setRefreshRate(rate);
-    const cmd = `settings put system peak_refresh_rate ${rate}.0; settings put system min_refresh_rate ${rate}.0; settings put secure min_refresh_rate ${rate}.0; settings put secure peak_refresh_rate ${rate}.0; settings put secure refresh_rate_mode 2; settings put global oneplus_screen_refresh_rate 2; settings put global oppo_screen_refresh_rate 2; settings put secure user_refresh_rate ${rate}`;
-    await runShell(cmd);
-    await updateBootScript('REFRESH_RATE', cmd, false);
-    logMsg(`Ép xung màn hình ${rate}Hz thành công!`);
+  const applyRefreshRate = async (rate: number | 'auto') => {
+    setRefreshRate(rate as any);
+    let cmd = "";
+    if (rate === 'auto') {
+      cmd = `settings delete system peak_refresh_rate; settings delete system min_refresh_rate; settings delete secure refresh_rate_mode; settings delete global oneplus_screen_refresh_rate; settings delete secure user_refresh_rate`;
+      await runShell(cmd);
+      await updateBootScript('REFRESH_RATE', '', true);
+      logMsg(`Đã chuyển về chế độ Tương Thích (Tự động)`);
+    } else {
+      cmd = `settings put system peak_refresh_rate ${rate}.0; settings put system min_refresh_rate ${rate}.0; settings put secure min_refresh_rate ${rate}.0; settings put secure peak_refresh_rate ${rate}.0; settings put secure refresh_rate_mode 2; settings put global oneplus_screen_refresh_rate 2; settings put global oppo_screen_refresh_rate 2; settings put secure user_refresh_rate ${rate}`;
+      await runShell(cmd);
+      await updateBootScript('REFRESH_RATE', cmd, false);
+      logMsg(`Ép xung màn hình ${rate}Hz thành công!`);
+    }
   };
 
   // 8. Anti Kill
@@ -175,16 +191,22 @@ export default function TweaksTab() {
   const runDeepClean = async () => {
     logMsg("Đang dọn rác hệ thống...");
     await runShell(`rm -rf /data/log/*; rm -rf /data/tombstones/*; rm -rf /data/anr/*; rm -rf /data/local/tmp/*; pm trim-caches 9999999999999`);
-    alert("Đã dọn dẹp hệ thống thành công!");
+    showAlert("Đã dọn dẹp hệ thống thành công! Giải phóng lượng lớn không gian rác.");
     logMsg("Dọn dẹp thành công!");
   };
 
-  // 10. Animation Scale
+  // 10. Animation & DPI
   const applyAnim = async (scale: number) => {
     setAnimScale(scale);
     const cmd = `settings put global window_animation_scale ${scale}; settings put global transition_animation_scale ${scale}; settings put global animator_duration_scale ${scale}`;
     await runShell(cmd);
     logMsg(`Thay đổi tốc độ hiệu ứng: ${scale}x`);
+  };
+
+  const applyDPI = async (val: string) => {
+    const cmd = val === 'reset' ? 'wm density reset' : `wm density ${val}`;
+    await runShell(cmd);
+    logMsg(val === 'reset' ? 'Đã khôi phục DPI mặc định' : `Đã đổi DPI sang ${val}`);
   };
 
   // Initialize status on load
@@ -322,32 +344,42 @@ export default function TweaksTab() {
               <Monitor size={20} />
             </div>
             <div className="item-info">
-              <span className="item-title">Ép Xung Tần Số Quét</span>
-              <span className="item-desc">Khóa refresh rate màn hình</span>
+              <span className="item-title">Tần Số Quét Màn Hình</span>
+              <span className="item-desc">Khóa hoặc Auto Refresh Rate</span>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
+            <button className={`btn ${refreshRate as any === 'auto' ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyRefreshRate('auto')}>Tương Thích</button>
             {[60, 90, 120].map(r => (
-              <button key={r} className={`btn ${refreshRate === r ? 'btn-primary' : ''}`} style={{ flex: 1 }} onClick={() => applyRefreshRate(r)}>{r}Hz</button>
+              <button key={r} className={`btn ${refreshRate === r ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyRefreshRate(r)}>{r}Hz</button>
             ))}
           </div>
         </div>
 
-        {/* Animations */}
+        {/* Animations & DPI */}
         <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
             <div className="item-icon" style={{ color: 'var(--accent-orange)', background: 'rgba(249, 115, 22, 0.1)' }}>
               <Sparkles size={20} />
             </div>
             <div className="item-info">
-              <span className="item-title">Tốc Độ Hiệu Ứng (Animation)</span>
-              <span className="item-desc">Chỉnh tốc độ chuyển cảnh</span>
+              <span className="item-title">Giao Diện & Hoạt Ảnh</span>
+              <span className="item-desc">Tốc độ chuyển cảnh và Độ phân giải</span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '6px' }}>
+          
+          <div style={{ fontSize: '12px', color: 'white', marginBottom: '8px' }}>Tốc Độ Hiệu Ứng</div>
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
             <button className={`btn ${animScale === 1 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(1)}>Mặc định</button>
             <button className={`btn ${animScale === 0.5 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(0.5)}>Nhanh 0.5x</button>
             <button className={`btn ${animScale === 0 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(0)}>Tắt hẳn</button>
+          </div>
+
+          <div style={{ fontSize: '12px', color: 'white', marginBottom: '8px' }}>Điều Chỉnh DPI</div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('reset')}>Mặc định</button>
+            <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('450')}>Vừa (450)</button>
+            <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('500')}>Nhỏ (500)</button>
           </div>
         </div>
 
@@ -375,6 +407,24 @@ export default function TweaksTab() {
         </button>
 
       </div>
+
+      {/* Custom Alert Modal */}
+      {modalMsg && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={() => setModalMsg('')}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '320px', padding: '24px', textAlign: 'center', animation: 'scale-up 0.2s ease-out' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--green)', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+              <ShieldAlert size={24} />
+            </div>
+            <h3 style={{ color: 'white', marginTop: 0, marginBottom: '8px', fontSize: '18px' }}>Thông Báo</h3>
+            <p style={{ color: 'var(--text-sub)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.5 }}>
+              {modalMsg}
+            </p>
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setModalMsg('')}>
+              Đóng
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Debloat Modal */}
       {showDebloatModal && (

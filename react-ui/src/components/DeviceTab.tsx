@@ -33,55 +33,47 @@ export default function DeviceTab() {
     if (!hasRoot) return;
 
     try {
-      const brandRes = await runShell('getprop ro.product.brand', 2000);
-      const modelRes = await runShell('getprop ro.product.model', 2000);
-
-      const ramCmd = `
-        t=$(cat /proc/meminfo 2>/dev/null | grep -i '^MemTotal' | grep -o '[0-9]*' | head -n 1)
-        a=$(cat /proc/meminfo 2>/dev/null | grep -i '^MemAvailable' | grep -o '[0-9]*' | head -n 1)
-        echo "$t|$a"
-      `;
-      const memRes = await runShell(ramCmd, 3000);
-
-      const hwCmd = `
-        cpu=$(getprop ro.board.platform 2>/dev/null)
-        if [ -z "$cpu" ]; then cpu=$(getprop ro.hardware 2>/dev/null); fi
-        gpu=$(cat /sys/class/kgsl/kgsl-3d0/gpu_model 2>/dev/null)
-        if [ -z "$gpu" ]; then gpu=$(dumpsys SurfaceFlinger 2>/dev/null | grep -i 'GLES: ' | head -n 1 | cut -d',' -f2 | xargs); fi
-        echo "$cpu|$gpu"
-      `;
-      const hwRes = await runShell(hwCmd, 2000);
-
-      const envCmd = `
-        z=""; m="";
-        ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i 'zygisk' >/dev/null && z="Zygisk"
-        ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i 'shamiko' >/dev/null && m="Shamiko"
-        ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i -E 'meta|^Tricky' >/dev/null && m="Meta"
-        echo "$z|$m"
-      `;
-      const envRes = await runShell(envCmd, 2000);
-
-      const hwStatCmd = `
-        c=$(cat /proc/stat 2>/dev/null | grep -w cpu | head -n 1)
-        g=$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null | grep -o '[0-9]*' | head -n 1)
-        if [ -z "$g" ]; then g=$(cat /sys/class/kgsl/kgsl-3d0/devfreq/gpu_load 2>/dev/null | grep -o '[0-9]*' | head -n 1); fi
-        echo "$c|$g"
-      `;
-      const hwStatRes = await runShell(hwStatCmd, 2000);
-
-      const storageCmd = `df /data 2>/dev/null | tail -n 1`;
-      const romRes = await runShell(storageCmd, 3000);
-
-      const batCmd = `
-        l=$(cat /sys/class/power_supply/battery/capacity 2>/dev/null)
-        if [ -z "$l" ]; then l=$(dumpsys battery 2>/dev/null | grep -m 1 'level: ' | cut -d ':' -f2 | tr -d ' '); fi
-        ht=$(cat /sys/class/power_supply/battery/health 2>/dev/null)
-        if [ -z "$ht" ]; then ht=$(dumpsys battery 2>/dev/null | grep -m 1 'health: ' | cut -d ':' -f2 | tr -d ' '); fi
-        st=$(cat /sys/class/power_supply/battery/status 2>/dev/null)
-        if [ -z "$st" ]; then st=$(dumpsys battery 2>/dev/null | grep -m 1 'status: ' | cut -d ':' -f2 | tr -d ' '); fi
-        echo "$l|$ht|$st"
-      `;
-      const batRes = await runShell(batCmd, 3000);
+      const [
+        brandRes, modelRes, memRes, hwRes, envRes, hwStatRes, romRes, batRes
+      ] = await Promise.all([
+        runShell('getprop ro.product.brand', 2000),
+        runShell('getprop ro.product.model', 2000),
+        runShell(`
+          t=$(cat /proc/meminfo 2>/dev/null | grep -i '^MemTotal' | grep -o '[0-9]*' | head -n 1)
+          a=$(cat /proc/meminfo 2>/dev/null | grep -i '^MemAvailable' | grep -o '[0-9]*' | head -n 1)
+          echo "$t|$a"
+        `, 3000),
+        runShell(`
+          cpu=$(getprop ro.board.platform 2>/dev/null)
+          if [ -z "$cpu" ]; then cpu=$(getprop ro.hardware 2>/dev/null); fi
+          gpu=$(cat /sys/class/kgsl/kgsl-3d0/gpu_model 2>/dev/null)
+          if [ -z "$gpu" ]; then gpu=$(dumpsys SurfaceFlinger 2>/dev/null | grep -i 'GLES: ' | head -n 1 | cut -d',' -f2 | xargs); fi
+          echo "$cpu|$gpu"
+        `, 2000),
+        runShell(`
+          z=""; m="";
+          ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i 'zygisk' >/dev/null && z="Zygisk"
+          ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i 'shamiko' >/dev/null && m="Shamiko"
+          ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i -E 'meta|^Tricky' >/dev/null && m="Meta"
+          echo "$z|$m"
+        `, 2000),
+        runShell(`
+          c=$(cat /proc/stat 2>/dev/null | grep -w cpu | head -n 1)
+          g=$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage 2>/dev/null | grep -o '[0-9]*' | head -n 1)
+          if [ -z "$g" ]; then g=$(cat /sys/class/kgsl/kgsl-3d0/devfreq/gpu_load 2>/dev/null | grep -o '[0-9]*' | head -n 1); fi
+          echo "$c|$g"
+        `, 2000),
+        runShell(`df /data 2>/dev/null | tail -n 1`, 3000),
+        runShell(`
+          l=$(cat /sys/class/power_supply/battery/capacity 2>/dev/null)
+          if [ -z "$l" ]; then l=$(dumpsys battery 2>/dev/null | grep -m 1 'level: ' | cut -d ':' -f2 | tr -d ' '); fi
+          ht=$(cat /sys/class/power_supply/battery/health 2>/dev/null)
+          if [ -z "$ht" ]; then ht=$(dumpsys battery 2>/dev/null | grep -m 1 'health: ' | cut -d ':' -f2 | tr -d ' '); fi
+          st=$(cat /sys/class/power_supply/battery/status 2>/dev/null)
+          if [ -z "$st" ]; then st=$(dumpsys battery 2>/dev/null | grep -m 1 'status: ' | cut -d ':' -f2 | tr -d ' '); fi
+          echo "$l|$ht|$st"
+        `, 3000)
+      ]);
 
       let memTotal = 0, memAvailable = 0;
       if (memRes.stdout) {

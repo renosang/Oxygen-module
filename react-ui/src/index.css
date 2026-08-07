@@ -401,3 +401,8 @@ h1, h2, h3, h4, .outfit-font {
   border-color: var(--accent-cyan);
   box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
 }
+
+@keyframes scale-up { 
+  from { transform: scale(0.9); opacity: 0; } 
+  to { transform: scale(1); opacity: 1; } 
+}
