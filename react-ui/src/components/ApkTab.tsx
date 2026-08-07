@@ -19,19 +19,13 @@ export default function ApkTab() {
     if (!hasRoot) return;
     try {
       const newInstalled = new Set<string>();
-      
-      const listRes = await runShell("pm list packages -f -u --user 0 2>/dev/null || cmd package list packages -f -u --user 0 2>/dev/null || pm list packages -f 2>/dev/null", 10000);
-      if (listRes.stdout) {
-         listRes.stdout.split('\n').forEach(line => {
-            line = line.trim();
-            if (!line || !line.includes('=')) return;
-            let pkgName = line.split('=').pop() || '';
-            if (pkgName && pkgName.includes('.')) {
-               newInstalled.add(pkgName);
-            }
-         });
-      }
-
+      // Use individual pm path checks for absolute reliability
+      await Promise.all(appsList.map(async (app) => {
+         const res = await runShell(`pm path ${app.pkg}`);
+         if (res.stdout && res.stdout.includes('package:')) {
+            newInstalled.add(app.pkg);
+         }
+      }));
       setInstalledPkgs(newInstalled);
     } catch(e) {}
   };
@@ -67,6 +61,25 @@ export default function ApkTab() {
     }
     setStartY(0);
     setPullDistance(0);
+  };
+
+  // Custom Long Press hook
+  const [longPressTimer, setLongPressTimer] = useState<any>(null);
+
+  const startLongPress = (app: any, isInstalled: boolean) => {
+    if (!isInstalled) return;
+    const timer = setTimeout(() => {
+      setSelectedApp(app);
+      setModalOpen(true);
+    }, 500); // 500ms long press
+    setLongPressTimer(timer);
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
   };
 
   const appsList = [
@@ -222,6 +235,10 @@ export default function ApkTab() {
             <div 
               className="list-item" 
               key={i}
+              onTouchStart={() => startLongPress(app, isInstalled)}
+              onTouchEnd={cancelLongPress}
+              onTouchCancel={cancelLongPress}
+              onTouchMove={cancelLongPress}
               onContextMenu={(e) => {
                 e.preventDefault();
                 if (isInstalled) {
