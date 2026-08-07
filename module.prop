@@ -1,7 +1,8 @@
-id=op_android16_app_suite
-name=OxygenOS 16 Application Extension
-version=v2026.1
-versionCode=202601
+id=oneplus_customize
+name=Oneplus Customize
+version=v1.0.0
+versionCode=100
 author=Renosang
-description=Gói mở rộng ứng dụng hệ thống và tiện ích cho OnePlus trên Android 16. Tự động triển khai hàng loạt APK tương thích cao mà không làm ảnh hưởng tới hệ thống gốc.
+description=Công cụ quản lý toàn diện cho OxygenOS 16: Hiển thị thông tin Realtime, đóng băng ứng dụng nền, cài APK tự động và tối ưu hệ thống không cần can thiệp ROM gốc.
 zygisk=yes
+webUi=true

@@ -13,6 +13,15 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
+echo "--- Đang Build giao diện React ---"
+cd react-ui && npm run build && cd ..
+if [ $? -ne 0 ]; then
+    echo "[LỖI] Build React thất bại."
+    read -p "Nhấn Enter để thoát..."
+    exit 1
+fi
+
+echo ""
 echo "Chọn phương án đẩy code:"
 echo "[1] Chỉ cập nhật WebUI (thư mục webroot) - Nhanh, phù hợp khi sửa giao diện"
 echo "[2] Cập nhật TOÀN BỘ module (webroot, module.prop, các file sh...)"
@@ -34,7 +43,7 @@ if [ "$opt" = "2" ]; then
     
     echo ""
     echo "--- Bước 2: Sao chép các tệp tin vào thư mục cài đặt (Yêu cầu quyền root/su) ---"
-    adb shell "su -c 'mkdir -p /data/adb/modules/op_android16_app_suite && cp -rf /data/local/tmp/addon/* /data/adb/modules/op_android16_app_suite/ && rm -rf /data/local/tmp/addon'"
+    adb shell "su -c 'mkdir -p /data/adb/modules/oneplus_customize && cp -rf /data/local/tmp/addon/* /data/adb/modules/oneplus_customize/ && rm -rf /data/local/tmp/addon'"
     
     echo ""
     echo "[THÀNH CÔNG] Đã cập nhật toàn bộ Module."
@@ -46,7 +55,7 @@ else
     
     echo ""
     echo "--- Bước 2: Sao chép WebUI vào thư mục cài đặt (Yêu cầu quyền root/su) ---"
-    adb shell "su -c 'mkdir -p /data/adb/modules/op_android16_app_suite/webroot && cp -rf /data/local/tmp/addon/webroot/* /data/adb/modules/op_android16_app_suite/webroot/ && rm -rf /data/local/tmp/addon'"
+    adb shell "su -c 'mkdir -p /data/adb/modules/oneplus_customize/webroot && cp -rf /data/local/tmp/addon/webroot/* /data/adb/modules/oneplus_customize/webroot/ && rm -rf /data/local/tmp/addon'"
     
     echo ""
     echo "[THÀNH CÔNG] Đã cập nhật giao diện WebUI."
