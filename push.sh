@@ -39,6 +39,8 @@ if [ "$opt" = "2" ]; then
     adb push customize.sh /data/local/tmp/addon/customize.sh
     adb push action.sh /data/local/tmp/addon/action.sh
     adb push post-fs-data.sh /data/local/tmp/addon/post-fs-data.sh
+    adb push service.sh /data/local/tmp/addon/service.sh
+    adb push enable_photos.sh /data/local/tmp/addon/enable_photos.sh
     adb push uninstall.sh /data/local/tmp/addon/uninstall.sh
     
     echo ""
