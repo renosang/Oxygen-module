@@ -221,9 +221,7 @@ h1, h2, h3, h4, .outfit-font {
 }
 
 .tab-btn.active {
-  background: rgba(255, 255, 255, 0.1);
   color: var(--accent-cyan);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .tab-btn.active svg {

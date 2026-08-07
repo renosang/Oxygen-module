@@ -52,16 +52,6 @@ function App() {
     setTouchEnd({ x: 0, y: 0 });
   };
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'info': return <DeviceTab />;
-      case 'freeze': return <FreezeTab />;
-      case 'apk': return <ApkTab />;
-      case 'tweaks': return <TweaksTab />;
-      default: return <DeviceTab />;
-    }
-  };
-
   return (
     <div 
       className="app-container"
@@ -99,7 +89,22 @@ function App() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="nav-tabs">
+      <div className="nav-tabs" style={{ position: 'relative' }}>
+        {/* Sliding Indicator */}
+        <div 
+          style={{
+            position: 'absolute',
+            top: '6px', 
+            bottom: '6px',
+            width: 'calc(25% - 3px)', // 4 tabs, minus padding
+            left: `calc(${tabs.indexOf(activeTab) * 25}% + 3px)`,
+            background: 'rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+            borderRadius: '12px',
+            transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
+            zIndex: 0
+          }} 
+        />
         <button className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>
             <LayoutDashboard size={20} />
             <span>Tổng Quan</span>
@@ -118,9 +123,22 @@ function App() {
         </button>
       </div>
 
-      {/* Main Content Area */}
-      <div className="content-area">
-        {renderTabContent()}
+      {/* Main Content Area with Sliding Animation */}
+      <div className="content-area" style={{ overflow: 'hidden', flex: 1, position: 'relative' }}>
+        <div 
+          style={{ 
+            display: 'flex', 
+            width: '400%', 
+            height: '100%', 
+            transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)', 
+            transform: `translateX(-${tabs.indexOf(activeTab) * 25}%)` 
+          }}
+        >
+          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><DeviceTab /></div>
+          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><FreezeTab /></div>
+          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><ApkTab /></div>
+          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><TweaksTab /></div>
+        </div>
       </div>
     </div>
   );
