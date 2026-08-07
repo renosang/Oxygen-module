@@ -16,24 +16,24 @@ export default function ApkTab() {
     try {
       const newInstalled = new Set<string>();
       
-      const res = await runShell("cmd package list packages 2>/dev/null || pm list packages 2>/dev/null");
+      const res = await runShell("pm list packages --user 0 2>/dev/null || cmd package list packages --user 0 2>/dev/null || pm list packages 2>/dev/null");
       if (res.stdout) {
          res.stdout.split('\n').forEach(l => {
-           const pkg = l.replace('package:', '').trim();
-           if (pkg) newInstalled.add(pkg);
+           let pkg = l.trim();
+           if (pkg.startsWith('package:')) {
+              pkg = pkg.substring(8); // remove 'package:'
+              // if -f was used by some weird rom, it might have '='
+              if (pkg.includes('=')) {
+                 pkg = pkg.split('=').pop() || pkg;
+              }
+              if (pkg) newInstalled.add(pkg.trim());
+           } else if (pkg && !pkg.includes(' ') && pkg.includes('.')) {
+              // Just in case it outputs raw package names
+              newInstalled.add(pkg);
+           }
          });
       }
 
-      const ksu = (window as any).ksu;
-      if (ksu && typeof ksu.listPackages === 'function') {
-        try {
-          const pkgs = JSON.parse(ksu.listPackages("all"));
-          if (Array.isArray(pkgs)) {
-            pkgs.forEach(p => newInstalled.add(p));
-          }
-        } catch(e) {}
-      }
-      
       setInstalledPkgs(newInstalled);
     } catch(e) {}
   };
