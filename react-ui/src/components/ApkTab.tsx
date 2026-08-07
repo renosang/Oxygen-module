@@ -1,5 +1,6 @@
-import { DownloadCloud, CheckCircle, Download } from 'lucide-react';
+import { DownloadCloud, CheckCircle, Download, Trash2, Eraser, Play, X } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useKsu } from '../hooks/useKsu';
 
 export default function ApkTab() {
@@ -11,26 +12,23 @@ export default function ApkTab() {
   const [startY, setStartY] = useState(0);
   const [pullDistance, setPullDistance] = useState(0);
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<any>(null);
+
   const fetchInstalled = async () => {
     if (!hasRoot) return;
     try {
       const newInstalled = new Set<string>();
       
-      const res = await runShell("pm list packages --user 0 2>/dev/null || cmd package list packages --user 0 2>/dev/null || pm list packages 2>/dev/null");
-      if (res.stdout) {
-         res.stdout.split('\n').forEach(l => {
-           let pkg = l.trim();
-           if (pkg.startsWith('package:')) {
-              pkg = pkg.substring(8); // remove 'package:'
-              // if -f was used by some weird rom, it might have '='
-              if (pkg.includes('=')) {
-                 pkg = pkg.split('=').pop() || pkg;
-              }
-              if (pkg) newInstalled.add(pkg.trim());
-           } else if (pkg && !pkg.includes(' ') && pkg.includes('.')) {
-              // Just in case it outputs raw package names
-              newInstalled.add(pkg);
-           }
+      const listRes = await runShell("pm list packages -f -u --user 0 2>/dev/null || cmd package list packages -f -u --user 0 2>/dev/null || pm list packages -f 2>/dev/null", 10000);
+      if (listRes.stdout) {
+         listRes.stdout.split('\n').forEach(line => {
+            line = line.trim();
+            if (!line || !line.includes('=')) return;
+            let pkgName = line.split('=').pop() || '';
+            if (pkgName && pkgName.includes('.')) {
+               newInstalled.add(pkgName);
+            }
          });
       }
 
@@ -134,8 +132,57 @@ export default function ApkTab() {
     return '#' + '00000'.substring(0, 6 - c.length) + c;
   };
 
+  const handleAction = async (action: 'open' | 'clear' | 'uninstall') => {
+    if (!selectedApp || !hasRoot) return;
+    setModalOpen(false);
+    
+    if (action === 'open') {
+      await runShell(`monkey -p ${selectedApp.pkg} -c android.intent.category.LAUNCHER 1`);
+    } else if (action === 'clear') {
+      await runShell(`pm clear ${selectedApp.pkg}`);
+    } else if (action === 'uninstall') {
+      await runShell(`pm uninstall ${selectedApp.pkg}`);
+      await fetchInstalled();
+    }
+  };
+
   return (
     <div className="glass-card" style={{ animationDelay: '0.3s', display: 'flex', flexDirection: 'column', height: '100%' }}>
+      
+      {/* Modal Actions */}
+      {modalOpen && selectedApp && createPortal(
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setModalOpen(false)}>
+          <div style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', padding: '24px', borderRadius: '16px', width: '90%', maxWidth: '320px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)', animation: 'slide-up 0.3s ease-out' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <img src={selectedApp.iconUrl} alt="icon" style={{ width: '32px', height: '32px', borderRadius: '6px' }} onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                <h3 style={{ margin: 0, fontSize: '16px', color: 'white' }}>{selectedApp.name}</h3>
+              </div>
+              <button style={{ background: 'transparent', border: 'none', color: 'var(--text-sub)', padding: 0 }} onClick={() => setModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p style={{ fontSize: '11px', color: 'var(--text-sub)', marginBottom: '16px' }}>
+              Package: <span style={{ color: 'var(--cyan)' }}>{selectedApp.pkg}</span>
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button className="btn" onClick={() => handleAction('open')} style={{ background: 'rgba(255,255,255,0.1)', justifyContent: 'flex-start', padding: '12px' }}>
+                <Play size={16} className="text-cyan" /> Mở ứng dụng
+              </button>
+              <button className="btn" onClick={() => handleAction('clear')} style={{ background: 'rgba(255,255,255,0.1)', justifyContent: 'flex-start', padding: '12px' }}>
+                <Eraser size={16} style={{ color: '#f59e0b' }} /> Xóa dữ liệu (Clear Data)
+              </button>
+              <button className="btn" onClick={() => handleAction('uninstall')} style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--accent-red)', justifyContent: 'flex-start', padding: '12px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                <Trash2 size={16} /> Gỡ cài đặt
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       <div className="card-title" style={{ marginBottom: '8px' }}>
         <DownloadCloud className="text-cyan" size={20} />
         <span>Kho Ứng Dụng Đề Xuất</span>
@@ -172,7 +219,18 @@ export default function ApkTab() {
         {filteredApps.map((app, i) => {
           const isInstalled = installedPkgs.has(app.pkg);
           return (
-            <div className="list-item" key={i}>
+            <div 
+              className="list-item" 
+              key={i}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                if (isInstalled) {
+                  setSelectedApp(app);
+                  setModalOpen(true);
+                }
+              }}
+              style={{ cursor: isInstalled ? 'context-menu' : 'default' }}
+            >
               <div className="item-icon" style={{ background: 'transparent', padding: 0, overflow: 'hidden', position: 'relative' }}>
                 <img 
                    src={app.iconUrl} 
