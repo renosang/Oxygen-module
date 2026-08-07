@@ -7,24 +7,53 @@ export default function ApkTab() {
   const [search, setSearch] = useState('');
   const [installedPkgs, setInstalledPkgs] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const fetchInstalled = async () => {
-      const ksu = (window as any).ksu;
-      if (ksu && typeof ksu.listPackages === 'function') {
-        try {
-          const pkgs = JSON.parse(ksu.listPackages("all"));
-          setInstalledPkgs(new Set(pkgs));
-        } catch(e) {}
-      } else if (hasRoot) {
-        const res = await runShell("pm list packages");
-        if (res.stdout) {
-           const pkgs = res.stdout.split('\n').map(l => l.replace('package:', '').trim()).filter(Boolean);
-           setInstalledPkgs(new Set(pkgs));
-        }
+  const [refreshing, setRefreshing] = useState(false);
+  const [startY, setStartY] = useState(0);
+  const [pullDistance, setPullDistance] = useState(0);
+
+  const fetchInstalled = async () => {
+    if (!hasRoot) return;
+    try {
+      const res = await runShell("pm list packages");
+      if (res.stdout) {
+         const pkgs = res.stdout.split('\n').map(l => l.replace('package:', '').trim()).filter(Boolean);
+         setInstalledPkgs(new Set(pkgs));
       }
-    };
+    } catch(e) {}
+  };
+
+  useEffect(() => {
     fetchInstalled();
   }, [hasRoot, runShell]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const container = e.currentTarget as HTMLElement;
+    if (container.scrollTop <= 0) {
+      setStartY(e.touches[0].clientY);
+    } else {
+      setStartY(0);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!startY) return;
+    const y = e.touches[0].clientY;
+    const dist = y - startY;
+    if (dist > 0 && e.currentTarget.scrollTop <= 0) {
+      if (e.cancelable) e.preventDefault();
+      setPullDistance(Math.min(dist, 100));
+    }
+  };
+
+  const handleTouchEnd = async () => {
+    if (pullDistance > 60 && !refreshing) {
+      setRefreshing(true);
+      await fetchInstalled();
+      setRefreshing(false);
+    }
+    setStartY(0);
+    setPullDistance(0);
+  };
 
   const appsList = [
     { name: "VNeID", pkg: "com.vnid", iconUrl: "https://play-lh.googleusercontent.com/Utqq3TNQjcmk0vSU20EnnkvswdUkehddvz-p99fciGgpuP8ccXnkBS3tadvLh0Yq3szz9kB8i5EtOwOBNkYcMw", desc: "Ứng dụng định danh điện tử" },
@@ -108,7 +137,22 @@ export default function ApkTab() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      <div className="list-container" style={{ overflowY: 'auto', flex: 1, paddingRight: '4px' }}>
+      <div 
+        className="list-container" 
+        style={{ overflowY: 'auto', flex: 1, paddingRight: '4px', position: 'relative' }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div style={{ height: `${pullDistance}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', transition: pullDistance === 0 ? 'height 0.3s ease' : 'none', opacity: pullDistance / 100 }}>
+          {refreshing ? (
+            <DownloadCloud className="spin-anim text-cyan" size={24} />
+          ) : (
+            <span style={{ fontSize: '12px', color: 'var(--text-sub)' }}>
+              {pullDistance > 60 ? 'Thả ra để làm mới...' : 'Vuốt xuống để làm mới...'}
+            </span>
+          )}
+        </div>
         {filteredApps.map((app, i) => {
           const isInstalled = installedPkgs.has(app.pkg);
           return (
