@@ -12,6 +12,45 @@ import TweaksTab from './components/TweaksTab';
 function App() {
   const [activeTab, setActiveTab] = useState<string>('info');
   const { hasRoot } = useKsu();
+  const tabs = ['info', 'freeze', 'apk', 'tweaks'];
+
+  const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
+  const [touchEnd, setTouchEnd] = useState({ x: 0, y: 0 });
+
+  const minSwipeDistance = 50; 
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd({ x: 0, y: 0 });
+    setTouchStart({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart.x || !touchEnd.x) return;
+    const distanceX = touchStart.x - touchEnd.x;
+    const distanceY = Math.abs(touchStart.y - touchEnd.y);
+    
+    // Only trigger if it's mostly horizontal (X distance > Y distance)
+    if (Math.abs(distanceX) > distanceY) {
+        const isLeftSwipe = distanceX > minSwipeDistance;
+        const isRightSwipe = distanceX < -minSwipeDistance;
+        
+        if (isLeftSwipe || isRightSwipe) {
+           const currentIndex = tabs.indexOf(activeTab);
+           if (isLeftSwipe && currentIndex < tabs.length - 1) {
+              setActiveTab(tabs[currentIndex + 1]);
+           } else if (isRightSwipe && currentIndex > 0) {
+              setActiveTab(tabs[currentIndex - 1]);
+           }
+        }
+    }
+    // reset
+    setTouchStart({ x: 0, y: 0 });
+    setTouchEnd({ x: 0, y: 0 });
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -24,7 +63,12 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <div 
+      className="app-container"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Header */}
       <div className="header">
         <div className="header-title">
