@@ -43,17 +43,17 @@ export default function ApkTab() {
     { name: "CapCut", pkg: "com.lemon.lvoverseas", iconUrl: "https://play-lh.googleusercontent.com/M78HyakHaxKrjoeqYx41E9DXfVYYtx67nvc7Ks4G4zFQeaAJdGCi8gzzGSrHIwlrmnJS6zD9S4fAXqdEwfuHQAQ", desc: "Chỉnh sửa video chuyên nghiệp" },
     { name: "Spotify", pkg: "com.spotify.music", iconUrl: "https://play-lh.googleusercontent.com/IzQgYCcnCFCD08GR-3bdtcT8xzOvrNkC84avGT5CwTX2VIqmTmKKJcP_Cd4JoBOdmCMlTndlOzV6hrthg2fOWA", desc: "Nghe nhạc trực tuyến" },
     { name: "Shopee", pkg: "com.shopee.vn", iconUrl: "https://play-lh.googleusercontent.com/mlS7AEDM9Ef-bEd_kc25xhtmJQN6hgpEEd3BQm20kIWMJNKWYfO93tuNJBT9WVcs8oZ9tpHdAPbEXI6FSsyw", desc: "Mua sắm trực tuyến" },
-    { name: "Vietcombank", pkg: "com.VCB", iconUrl: "ksu://icon/com.VCB", desc: "Ngân hàng Vietcombank" },
-    { name: "MyVIB", pkg: "com.vib.myvib", searchQ: "VIB", iconUrl: "ksu://icon/com.vib.myvib", desc: "Ngân hàng số VIB" },
-    { name: "MB Bank", pkg: "com.mbmobile", iconUrl: "ksu://icon/com.mbmobile", desc: "Ngân hàng Quân Đội MBBank" },
-    { name: "Sacombank Pay", pkg: "com.sacombank.ewallet", iconUrl: "ksu://icon/com.sacombank.ewallet", desc: "Ví điện tử Sacombank Pay" },
-    { name: "Cake by VPBank", pkg: "xyz.be.cake", iconUrl: "ksu://icon/xyz.be.cake", desc: "Ngân hàng số Cake" },
-    { name: "ACB ONE", pkg: "mobile.acb.com.vn", iconUrl: "ksu://icon/mobile.acb.com.vn", desc: "Ngân hàng Á Châu ACB" },
-    { name: "OCB OMNI", pkg: "vn.com.ocb.awe", iconUrl: "ksu://icon/vn.com.ocb.awe", desc: "Ngân hàng Phương Đông OCB" },
-    { name: "Techcombank", pkg: "vn.com.techcombank.bb.app", iconUrl: "ksu://icon/vn.com.techcombank.bb.app", desc: "Ngân hàng Techcombank" },
-    { name: "VPBank NEO", pkg: "com.vnpay.vpbankonline", iconUrl: "ksu://icon/com.vnpay.vpbankonline", desc: "Ngân hàng số VPBank NEO" },
-    { name: "BIDV SmartBanking", pkg: "com.vnpay.bidv", iconUrl: "ksu://icon/com.vnpay.bidv", desc: "Ngân hàng BIDV" },
-    { name: "VietinBank iPay", pkg: "com.vietinbank.ipay", iconUrl: "ksu://icon/com.vietinbank.ipay", desc: "Ngân hàng VietinBank" }
+    { name: "Vietcombank", pkg: "com.VCB", iconUrl: "https://play-lh.googleusercontent.com/cVXFNzk-3RNhsEZY56xL3a17l1HCfovWp55g-2MvoE-pEPebatbLt432wlTcNCcMy00su9NDwnLLdWYzpy6QMw", desc: "Ngân hàng Vietcombank" },
+    { name: "MyVIB", pkg: "com.vib.myvib", searchQ: "VIB", iconUrl: "https://play-lh.googleusercontent.com/FgCxU9XrRnfxTmZ9J5mcAPFYfghbg_dEeiRZD3NdBMLC319ARXIxCll9UMTwnwlRjZnrIrS9HWWitrXPTCVEqeE", desc: "Ngân hàng số VIB" },
+    { name: "MB Bank", pkg: "com.mbmobile", iconUrl: "https://play-lh.googleusercontent.com/p4BaQ6Y8_NsDHpTzn26h2U8gqWHFyKNhKkG0rxSsnB3qD64Hw8HozfCDYLiZXt2L7jDot8MhsF3qFePuOW16", desc: "Ngân hàng Quân Đội MBBank" },
+    { name: "Sacombank Pay", pkg: "com.sacombank.ewallet", iconUrl: "https://play-lh.googleusercontent.com/o6fJzMt3cjbsj1EgMOwh1_fYbUNhoU7cFjG7ydcAu4qcH3ARB7Z-Fk6ErkgTh1uWiRBIgt65np2tlVDfZc40bS0", desc: "Ví điện tử Sacombank Pay" },
+    { name: "Cake by VPBank", pkg: "xyz.be.cake", iconUrl: "https://play-lh.googleusercontent.com/5n0GSHMAB1vbyeH2KmNW5401x5JvAEG-0BVY_q7HBhYcesqtzaDEzYQtR6JgGVNKqmIY1FIRHU2xAtGpAd6H", desc: "Ngân hàng số Cake" },
+    { name: "ACB ONE", pkg: "mobile.acb.com.vn", iconUrl: "https://play-lh.googleusercontent.com/nomw7_Zx8tBK-kBqZXwLCUzqH1SDe7of8FKh8XEhXlvVeN5dpUH7sAJffUrSDE1yYotPwL3V8ISPccFL3ARQ", desc: "Ngân hàng Á Châu ACB" },
+    { name: "OCB OMNI", pkg: "vn.com.ocb.awe", iconUrl: "https://play-lh.googleusercontent.com/KZ-6qwhiLAdP0zjFUtLYeoCj5i8IN9NjWFSrHKkomVJ24BJMq8wGRGAlLzaufBZE76EMwdqZyibBYVzCU9OU4Q", desc: "Ngân hàng Phương Đông OCB" },
+    { name: "Techcombank", pkg: "vn.com.techcombank.bb.app", iconUrl: "https://play-lh.googleusercontent.com/TEOsVXBz794NtT1cjrKKzdpXusU1sDqjMPlYFswKKJ01UqVkSvStCAHYikyGTcraWEWnKhQJv00kEcs9SgfH1A", desc: "Ngân hàng Techcombank" },
+    { name: "VPBank NEO", pkg: "com.vnpay.vpbankonline", iconUrl: "https://play-lh.googleusercontent.com/Jk1dygnmMsqi79x_GRnXUGFGYhxmlNvQ0BlVaV1p6YkkJS96qRe7DVuLU0Zu20YlnDFSclJSIAgzqp_1I_RK", desc: "Ngân hàng số VPBank NEO" },
+    { name: "BIDV SmartBanking", pkg: "com.vnpay.bidv", iconUrl: "https://play-lh.googleusercontent.com/-tLWNSwRkF_jalHp2hfwa3hBFPgKbt2fiY3hXGYLCxap3yao57fqBtR72n0wEIvKm7o9W0tAH1XO23ZzsfxJ", desc: "Ngân hàng BIDV" },
+    { name: "VietinBank iPay", pkg: "com.vietinbank.ipay", iconUrl: "https://play-lh.googleusercontent.com/3MZvbbr_8VgV7D_f1QQbtfptKYbd1FPUyMULd86DVymuyPSPad9JD2oDlra5ySQ3tUtlXh9IinfUGeR5GZN43Q", desc: "Ngân hàng VietinBank" }
   ];
 
   const filteredApps = useMemo(() => {
