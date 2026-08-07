@@ -43,10 +43,17 @@ export default function ApkTab() {
     { name: "CapCut", pkg: "com.lemon.lvoverseas", iconUrl: "https://play-lh.googleusercontent.com/M78HyakHaxKrjoeqYx41E9DXfVYYtx67nvc7Ks4G4zFQeaAJdGCi8gzzGSrHIwlrmnJS6zD9S4fAXqdEwfuHQAQ", desc: "Chỉnh sửa video chuyên nghiệp" },
     { name: "Spotify", pkg: "com.spotify.music", iconUrl: "https://play-lh.googleusercontent.com/IzQgYCcnCFCD08GR-3bdtcT8xzOvrNkC84avGT5CwTX2VIqmTmKKJcP_Cd4JoBOdmCMlTndlOzV6hrthg2fOWA", desc: "Nghe nhạc trực tuyến" },
     { name: "Shopee", pkg: "com.shopee.vn", iconUrl: "https://play-lh.googleusercontent.com/mlS7AEDM9Ef-bEd_kc25xhtmJQN6hgpEEd3BQm20kIWMJNKWYfO93tuNJBT9WVcs8oZ9tpHdAPbEXI6FSsyw", desc: "Mua sắm trực tuyến" },
-    { name: "Sacombank mBanking", pkg: "com.sacombank.mBanking", iconUrl: "https://play-lh.googleusercontent.com/5h8TfJ-w_2G1-B4R5G4cW1wR_8T0k-3K4z_5yK9y3U3U-7T-T4yH-0T1rD6H6zQ0_g", desc: "Ngân hàng số Sacombank" },
-    { name: "MyVIB", pkg: "com.vib.myvib", iconUrl: "https://play-lh.googleusercontent.com/P4w5vK2Q8A8vF_T3G2qQ-Q3A_E0qW-Z8I4T8uB-uL9U8P7L8wN4sK9Q5wA-zE6T3F8s", desc: "Ngân hàng số VIB" },
-    { name: "Vietcombank", pkg: "com.VCB", iconUrl: "https://play-lh.googleusercontent.com/T4R2E_V8u-E6oR9W_K3E9R8P_Q5rE6X-9uN9T-K_L4yY-Y6R_X3c-T_L8qY8U6wT-3o", desc: "Ngân hàng Vietcombank" },
-    { name: "MB Bank", pkg: "com.mbmobile", iconUrl: "https://play-lh.googleusercontent.com/Q2yU8K_T3Q6W_F3K7F4R3A8I_T9qP8U_E8qK9Z9R_W4uT-F4U_O5X5C5H5C5V5J3s", desc: "Ngân hàng Quân Đội MBBank" },
+    { name: "Vietcombank", pkg: "com.VCB", iconUrl: "ksu://icon/com.VCB", desc: "Ngân hàng Vietcombank" },
+    { name: "MyVIB", pkg: "com.vib.myvib", searchQ: "VIB", iconUrl: "ksu://icon/com.vib.myvib", desc: "Ngân hàng số VIB" },
+    { name: "MB Bank", pkg: "com.mbmobile", iconUrl: "ksu://icon/com.mbmobile", desc: "Ngân hàng Quân Đội MBBank" },
+    { name: "Sacombank Pay", pkg: "com.sacombank.ewallet", iconUrl: "ksu://icon/com.sacombank.ewallet", desc: "Ví điện tử Sacombank Pay" },
+    { name: "Cake by VPBank", pkg: "xyz.be.cake", iconUrl: "ksu://icon/xyz.be.cake", desc: "Ngân hàng số Cake" },
+    { name: "ACB ONE", pkg: "mobile.acb.com.vn", iconUrl: "ksu://icon/mobile.acb.com.vn", desc: "Ngân hàng Á Châu ACB" },
+    { name: "OCB OMNI", pkg: "vn.com.ocb.awe", iconUrl: "ksu://icon/vn.com.ocb.awe", desc: "Ngân hàng Phương Đông OCB" },
+    { name: "Techcombank", pkg: "vn.com.techcombank.bb.app", iconUrl: "ksu://icon/vn.com.techcombank.bb.app", desc: "Ngân hàng Techcombank" },
+    { name: "VPBank NEO", pkg: "com.vnpay.vpbankonline", iconUrl: "ksu://icon/com.vnpay.vpbankonline", desc: "Ngân hàng số VPBank NEO" },
+    { name: "BIDV SmartBanking", pkg: "com.vnpay.bidv", iconUrl: "ksu://icon/com.vnpay.bidv", desc: "Ngân hàng BIDV" },
+    { name: "VietinBank iPay", pkg: "com.vietinbank.ipay", iconUrl: "ksu://icon/com.vietinbank.ipay", desc: "Ngân hàng VietinBank" }
   ];
 
   const filteredApps = useMemo(() => {
@@ -56,8 +63,21 @@ export default function ApkTab() {
     );
   }, [search]);
 
-  const openApp = (pkg: string) => {
-    window.location.href = `https://play.google.com/store/apps/details?id=${pkg}`;
+  const openApp = async (app: any) => {
+    // Luôn ưu tiên dùng KSU shell để mở trực tiếp App CH Play (Native)
+    if (hasRoot) {
+      if (app.searchQ) {
+         await runShell(`am start -a android.intent.action.VIEW -d "market://search?q=${app.searchQ}&c=apps"`);
+      } else {
+         await runShell(`am start -a android.intent.action.VIEW -d "market://details?id=${app.pkg}"`);
+      }
+    } else {
+      if (app.searchQ) {
+         window.location.href = `intent://play.google.com/store/search?q=${app.searchQ}&c=apps#Intent;scheme=https;package=com.android.vending;end`;
+      } else {
+         window.location.href = `intent://details?id=${app.pkg}#Intent;scheme=market;package=com.android.vending;end`;
+      }
+    }
   };
 
   const stringToColor = (str: string) => {
@@ -119,7 +139,7 @@ export default function ApkTab() {
                   </span>
                 </button>
               ) : (
-                <button className="btn btn-primary" onClick={() => openApp(app.pkg)} style={{ padding: '6px 12px', fontSize: '11px', minWidth: '70px', background: 'linear-gradient(135deg, var(--accent-cyan), #0284c7)' }}>
+                <button className="btn btn-primary" onClick={() => openApp(app)} style={{ padding: '6px 12px', fontSize: '11px', minWidth: '70px', background: 'linear-gradient(135deg, var(--accent-cyan), #0284c7)' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Download size={14} /> Cài đặt
                   </span>
