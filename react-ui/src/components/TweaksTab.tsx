@@ -110,16 +110,26 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     setDebloatLog([]);
     setDebloatProgress(0);
 
+    // Yield to browser to paint the modal before heavy loop
+    await new Promise(r => setTimeout(r, 100));
+
     let count = 0;
     for (let i = 0; i < bloatwareList.length; i++) {
       const pkg = bloatwareList[i];
       const cmd = restore ? `pm enable ${pkg}` : `pm disable-user --user 0 ${pkg}`;
       const res = await runShell(cmd);
+      
       setDebloatProgress(Math.round(((i + 1) / bloatwareList.length) * 100));
+      
       if (res.stdout.includes("new state")) {
         count++;
-        setDebloatLog(prev => [...prev, `✓ ${restore ? 'Khôi phục' : 'Vô hiệu hóa'}: ${pkg}`]);
+        setDebloatLog(prev => [...prev, `✓ ${restore ? 'Khôi phục' : 'Đã xóa'}: ${pkg}`]);
+      } else {
+        setDebloatLog(prev => [...prev, `- Bỏ qua (đã xử lý/không có): ${pkg}`]);
       }
+      
+      // Small yield to force React to paint the updated progress and log
+      await new Promise(r => setTimeout(r, 20));
     }
     setDebloatLog(prev => [...prev, `✨ Hoàn tất! Đã xử lý ${count}/${bloatwareList.length} ứng dụng.`]);
     setIsDebloating(false);
@@ -451,9 +461,15 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
           </div>
 
           <div style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
-            {debloatLog.map((log, idx) => (
-              <div key={idx} style={{ color: log.startsWith('✓') || log.startsWith('✨') ? 'var(--green)' : 'inherit', marginBottom: '4px' }}>{log}</div>
-            ))}
+            {debloatLog.map((log, idx) => {
+              if (log.startsWith('✓')) {
+                return <div key={idx} style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginBottom: '4px', textShadow: '0 0 8px rgba(16,185,129,0.3)' }}>{log}</div>;
+              } else if (log.startsWith('✨')) {
+                return <div key={idx} style={{ color: 'var(--cyan)', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>{log}</div>;
+              } else {
+                return <div key={idx} style={{ color: 'rgba(255,255,255,0.3)', marginBottom: '4px' }}>{log}</div>;
+              }
+            })}
           </div>
 
           <button className="btn btn-primary" style={{ marginTop: '16px' }} disabled={isDebloating} onClick={() => setShowDebloatModal(false)}>
