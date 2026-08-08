@@ -242,7 +242,7 @@ export default function FreezeTab({ isActive }: { isActive: boolean }) {
         )}
       </div>
 
-      <div className="list-container" style={{ flex: 1, minHeight: '300px', maxHeight: '500px', overflowY: 'auto', paddingRight: '4px' }}>
+      <div className="list-container" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
         {loading && apps.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-sub)' }}>
             <RefreshCw size={32} className="spinner text-cyan" style={{ marginBottom: '16px', margin: '0 auto' }} />
