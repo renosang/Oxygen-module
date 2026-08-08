@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Smartphone, Cpu, HardDrive, ShieldCheck, Battery, BatteryCharging, BatteryFull, Activity } from 'lucide-react';
 import { useKsu } from '../hooks/useKsu';
 
-export default function DeviceTab() {
+export default function DeviceTab({ isActive }: { isActive: boolean }) {
   const { hasRoot, apiName, runShell } = useKsu();
   const [deviceInfo, setDeviceInfo] = useState({
     brand: 'Đang tải...',
@@ -206,12 +206,12 @@ export default function DeviceTab() {
   };
 
   useEffect(() => {
-    if (hasRoot) {
+    if (hasRoot && isActive) {
       fetchDeviceInfo();
       const interval = setInterval(fetchDeviceInfo, 5000); // Cập nhật mỗi 5s
       return () => clearInterval(interval);
     }
-  }, [hasRoot]);
+  }, [hasRoot, isActive]);
 
   const ramPercent = deviceInfo.ramTotal ? (deviceInfo.ramUsed / deviceInfo.ramTotal) * 100 : 0;
   const romPercent = deviceInfo.romTotal ? (deviceInfo.romUsed / deviceInfo.romTotal) * 100 : 0;

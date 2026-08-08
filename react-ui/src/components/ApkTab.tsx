@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useKsu } from '../hooks/useKsu';
 
-export default function ApkTab() {
+export default function ApkTab({ isActive }: { isActive: boolean }) {
   const { hasRoot, runShell } = useKsu();
   const [search, setSearch] = useState('');
   const [installedPkgs, setInstalledPkgs] = useState<Set<string>>(new Set());
@@ -14,6 +14,7 @@ export default function ApkTab() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchInstalled = async () => {
     if (!hasRoot) return;
@@ -27,12 +28,15 @@ export default function ApkTab() {
          }
       }));
       setInstalledPkgs(newInstalled);
+      setHasFetched(true);
     } catch(e) {}
   };
 
   useEffect(() => {
-    fetchInstalled();
-  }, [hasRoot, runShell]);
+    if (hasRoot && isActive && !hasFetched) {
+      fetchInstalled();
+    }
+  }, [hasRoot, isActive]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const container = e.currentTarget as HTMLElement;

@@ -2,9 +2,10 @@ import { Settings2, Image, ShieldAlert, Zap, Monitor, Activity, Trash2, Globe, S
 import { useState, useEffect } from 'react';
 import { useKsu } from '../hooks/useKsu';
 
-export default function TweaksTab() {
+export default function TweaksTab({ isActive }: { isActive: boolean }) {
   const { hasRoot, runShell } = useKsu();
   const [logs, setLogs] = useState<string[]>([]);
+  const [hasFetched, setHasFetched] = useState(false);
   
   // States for toggles/buttons
   const [adblockStatus, setAdblockStatus] = useState(false);
@@ -211,7 +212,7 @@ export default function TweaksTab() {
 
   // Initialize status on load
   useEffect(() => {
-    if (hasRoot) {
+    if (hasRoot && isActive && !hasFetched) {
       checkAdblock();
       // Attempt to read boot script or system props to pre-select states (mocking for UI)
       runShell("settings get global private_dns_specifier").then(res => {
@@ -227,8 +228,9 @@ export default function TweaksTab() {
         const val = parseFloat(res.stdout);
         if (!isNaN(val)) setAnimScale(val);
       });
+      setHasFetched(true);
     }
-  }, [hasRoot]);
+  }, [hasRoot, isActive]);
 
   return (
     <div className="glass-card" style={{ animationDelay: '0.4s', paddingBottom: '80px' }}>

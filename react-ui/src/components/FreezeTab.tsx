@@ -22,7 +22,7 @@ const stringToColor = (str: string) => {
   return '#' + '00000'.substring(0, 6 - c.length) + c;
 };
 
-export default function FreezeTab() {
+export default function FreezeTab({ isActive }: { isActive: boolean }) {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [apps, setApps] = useState<AppInfo[]>([]);
@@ -30,6 +30,8 @@ export default function FreezeTab() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<AppInfo | null>(null);
   const { hasRoot, runShell } = useKsu();
+
+  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchApps = async () => {
     if (!hasRoot) return;
@@ -101,6 +103,7 @@ export default function FreezeTab() {
       });
 
       setApps(fetchedApps);
+      setHasFetched(true);
     } catch (e) {
       console.error(e);
     }
@@ -108,9 +111,11 @@ export default function FreezeTab() {
   };
 
   useEffect(() => {
-    fetchApps();
+    if (hasRoot && isActive && !hasFetched) {
+       fetchApps();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasRoot]);
+  }, [hasRoot, isActive]);
 
   const confirmFreeze = (app: AppInfo) => {
      if (app.isSystem && !app.isFrozen) {

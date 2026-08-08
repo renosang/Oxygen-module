@@ -134,10 +134,10 @@ function App() {
             transform: `translateX(-${tabs.indexOf(activeTab) * 25}%)` 
           }}
         >
-          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><DeviceTab /></div>
-          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><FreezeTab /></div>
-          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><ApkTab /></div>
-          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><TweaksTab /></div>
+          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><DeviceTab isActive={activeTab === 'info'} /></div>
+          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><FreezeTab isActive={activeTab === 'freeze'} /></div>
+          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><ApkTab isActive={activeTab === 'apk'} /></div>
+          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><TweaksTab isActive={activeTab === 'tweaks'} /></div>
         </div>
       </div>
     </div>
