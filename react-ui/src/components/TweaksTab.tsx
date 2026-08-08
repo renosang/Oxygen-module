@@ -1,4 +1,4 @@
-import { Settings2, Image, ShieldAlert, Zap, Monitor, Activity, Trash2, Globe, Sparkles } from 'lucide-react';
+import { Settings2, Image, ShieldAlert, Monitor, Activity, Trash2, Globe, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useKsu } from '../hooks/useKsu';
 
@@ -9,7 +9,6 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   
   // States for toggles/buttons
   const [adblockStatus, setAdblockStatus] = useState(false);
-  const [profile, setProfile] = useState('balanced');
   const [gmsDoze, setGmsDoze] = useState(false);
   const [dns, setDns] = useState('default');
   const [refreshRate, setRefreshRate] = useState(120);
@@ -112,22 +111,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     setIsDebloating(false);
   };
 
-  // 4. CPU Profiles
-  const applyProfile = async (p: string) => {
-    setProfile(p);
-    let cmd = "";
-    if (p === 'battery') {
-      cmd = `settings put global low_power 1; settings put system performance_mode_state 0; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "powersave" > $gov 2>/dev/null || echo "schedutil" > $gov 2>/dev/null; done`;
-    } else if (p === 'balanced') {
-      cmd = `settings put global low_power 0; settings put system performance_mode_state 0; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "schedutil" > $gov 2>/dev/null; done`;
-    } else if (p === 'performance') {
-      cmd = `settings put global low_power 0; settings put system performance_mode_state 1; settings put system user_mode_high_performance 1; for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "performance" > $gov 2>/dev/null; done`;
-    }
-    await runShell(cmd);
-    await updateBootScript('CPU_PROFILE', cmd, false);
-    logMsg(`Đã áp dụng cấu hình: ${p.toUpperCase()}`);
-    showAlert(`Đã kích hoạt chế độ ${p.toUpperCase()} thành công!`);
-  };
+  // 4. Removed CPU Profiles
 
   // 5. GMS Doze
   const applyGmsDoze = async (enable: boolean) => {
@@ -298,24 +282,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
           </div>
         </div>
 
-        {/* Performance Profiles */}
-        <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-            <div className="item-icon" style={{ color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.1)' }}>
-              <Zap size={20} />
-            </div>
-            <div className="item-info">
-              <span className="item-title">Cấu Hình CPU (Giữ sau khi reboot)</span>
-              <span className="item-desc">Điều chỉnh xung nhịp hệ thống</span>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <button className={`btn ${profile === 'battery' ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyProfile('battery')}>Pin</button>
-            <button className={`btn ${profile === 'balanced' ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyProfile('balanced')}>Cân Bằng</button>
-            <button className={`btn ${profile === 'performance' ? 'btn-danger' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyProfile('performance')}>Hiệu Năng</button>
-          </div>
-        </div>
-
+        {/* Performance Profiles Removed */}
         {/* Anti-Kill & GMS Doze */}
         <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
