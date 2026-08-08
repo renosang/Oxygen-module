@@ -1,4 +1,4 @@
-import { Settings2, Image, ShieldAlert, Monitor, Activity, Trash2, Globe, Sparkles } from 'lucide-react';
+import { Settings2, Image, ShieldAlert, Monitor, Activity, Trash2, Globe, Sparkles, ShieldCheck, Flame, Zap, Wifi } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useKsu } from '../hooks/useKsu';
 
@@ -15,6 +15,10 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   const [antiKill, setAntiKill] = useState(false);
   const [animScale, setAnimScale] = useState(1);
   const [photosEnabled, setPhotosEnabled] = useState(false);
+  const [playIntegrity, setPlayIntegrity] = useState(false);
+  const [forceFps, setForceFps] = useState(false);
+  const [thermal, setThermal] = useState(false);
+  const [bbr, setBbr] = useState(false);
 
   // Modal Debloat
   const [showDebloatModal, setShowDebloatModal] = useState(false);
@@ -233,6 +237,62 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     logMsg("Dọn dẹp hệ thống thành công!");
   };
 
+  // 11. New Tweaks (Play Integrity, FPS, Thermal, BBR)
+  const applyPlayIntegrity = async (enable: boolean) => {
+    setPlayIntegrity(enable);
+    const modpath = getModPath();
+    if (enable) {
+      await runShell(`touch ${modpath}/pif_enabled`);
+      logMsg("Đã bật Play Integrity Fix (Cần khởi động lại).");
+    } else {
+      await runShell(`rm -f ${modpath}/pif_enabled`);
+      logMsg("Đã tắt Play Integrity Fix.");
+    }
+  };
+
+  const applyForceFps = async (enable: boolean) => {
+    setForceFps(enable);
+    if (enable) {
+      const cmd = `settings put system peak_refresh_rate 120.0; settings put system min_refresh_rate 120.0; settings put secure min_refresh_rate 120.0; settings put system op_custom_vrr_min_refresh_rate 120.0`;
+      await runShell(cmd);
+      await updateBootScript('FORCE_FPS', cmd, false);
+      logMsg("Đã ép tần số quét 120Hz/144Hz tối đa!");
+    } else {
+      await updateBootScript('FORCE_FPS', '', true);
+      logMsg("Khôi phục tần số quét mặc định.");
+    }
+  };
+
+  const applyThermal = async (enable: boolean) => {
+    setThermal(enable);
+    if (enable) {
+      const cmd = `pm disable-user --user 0 com.oplus.battery; pm disable-user --user 0 com.oplus.athena; stop thermal-engine`;
+      await runShell(cmd);
+      await updateBootScript('DISABLE_THERMAL', cmd, false);
+      logMsg("Đã gỡ bỏ giới hạn nhiệt độ (Hiệu năng tối đa)!");
+    } else {
+      const cmd = `pm enable com.oplus.battery; pm enable com.oplus.athena; start thermal-engine`;
+      await runShell(cmd);
+      await updateBootScript('DISABLE_THERMAL', '', true);
+      logMsg("Khôi phục quản lý nhiệt độ.");
+    }
+  };
+
+  const applyBbr = async (enable: boolean) => {
+    setBbr(enable);
+    if (enable) {
+      const cmd = `sysctl -w net.ipv4.tcp_congestion_control=bbr`;
+      await runShell(cmd);
+      await updateBootScript('TCP_BBR', cmd, false);
+      logMsg("Đã bật thuật toán TCP BBR tăng tốc mạng!");
+    } else {
+      const cmd = `sysctl -w net.ipv4.tcp_congestion_control=cubic`;
+      await runShell(cmd);
+      await updateBootScript('TCP_BBR', '', true);
+      logMsg("Đã tắt TCP BBR.");
+    }
+  };
+
   // 10. Animation & DPI
   const applyAnim = async (scale: number) => {
     setAnimScale(scale);
@@ -264,6 +324,18 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
       runShell("settings get global animator_duration_scale").then(res => {
         const val = parseFloat(res.stdout);
         if (!isNaN(val)) setAnimScale(val);
+      });
+      runShell(`[ -f "${getModPath()}/pif_enabled" ] && echo "ON" || echo "OFF"`).then(res => {
+        if (res.stdout.trim() === "ON") setPlayIntegrity(true);
+      });
+      runShell(`grep "FORCE_FPS" ${getModPath()}/tweaks_boot.sh`).then(res => {
+        if (res.stdout.trim() !== "") setForceFps(true);
+      });
+      runShell(`grep "DISABLE_THERMAL" ${getModPath()}/tweaks_boot.sh`).then(res => {
+        if (res.stdout.trim() !== "") setThermal(true);
+      });
+      runShell(`grep "TCP_BBR" ${getModPath()}/tweaks_boot.sh`).then(res => {
+        if (res.stdout.trim() !== "") setBbr(true);
       });
       setHasFetched(true);
     }
@@ -432,6 +504,70 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
           <button className={`btn ${dns === 'cloudflare' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('cloudflare')}>1.1.1.1</button>
           <button className={`btn ${dns === 'google' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('google')}>Google</button>
           <button className={`btn ${dns === 'adguard' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('adguard')}>AdGuard</button>
+        </div>
+      </div>
+
+      {/* Play Integrity Fix */}
+      <div className="list-item">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="item-icon" style={{ color: 'var(--accent-green)', background: 'rgba(16, 185, 129, 0.1)' }}>
+            <ShieldCheck size={20} />
+          </div>
+          <div className="item-info">
+            <span className="item-title">Play Integrity Fix</span>
+            <span className="item-desc">Vượt SafetyNet / Ẩn Root</span>
+          </div>
+        </div>
+        <div className={`switch ${playIntegrity ? 'active' : ''}`} onClick={() => applyPlayIntegrity(!playIntegrity)}>
+          <div className="switch-handle"></div>
+        </div>
+      </div>
+
+      {/* Unlock FPS */}
+      <div className="list-item">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="item-icon" style={{ color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.1)' }}>
+            <Zap size={20} />
+          </div>
+          <div className="item-info">
+            <span className="item-title">Ép Xung Màn Hình (Game)</span>
+            <span className="item-desc">Khóa cứng 120/144Hz tối đa</span>
+          </div>
+        </div>
+        <div className={`switch ${forceFps ? 'active' : ''}`} onClick={() => applyForceFps(!forceFps)}>
+          <div className="switch-handle"></div>
+        </div>
+      </div>
+
+      {/* Disable Thermal Throttling */}
+      <div className="list-item">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="item-icon" style={{ color: 'var(--accent-red)', background: 'rgba(239, 68, 68, 0.1)' }}>
+            <Flame size={20} />
+          </div>
+          <div className="item-info">
+            <span className="item-title">Hiệu Năng Tối Đa</span>
+            <span className="item-desc">Gỡ bỏ giới hạn nhiệt độ (Gây nóng máy)</span>
+          </div>
+        </div>
+        <div className={`switch ${thermal ? 'active' : ''}`} onClick={() => applyThermal(!thermal)}>
+          <div className="switch-handle"></div>
+        </div>
+      </div>
+
+      {/* TCP BBR */}
+      <div className="list-item">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="item-icon" style={{ color: 'var(--accent-blue)', background: 'rgba(59, 130, 246, 0.1)' }}>
+            <Wifi size={20} />
+          </div>
+          <div className="item-info">
+            <span className="item-title">Tăng Tốc Mạng (TCP BBR)</span>
+            <span className="item-desc">Giảm Ping, tăng tốc độ mạng</span>
+          </div>
+        </div>
+        <div className={`switch ${bbr ? 'active' : ''}`} onClick={() => applyBbr(!bbr)}>
+          <div className="switch-handle"></div>
         </div>
       </div>
 

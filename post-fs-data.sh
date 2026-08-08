@@ -32,4 +32,15 @@ done
 mount -o ro,bind "$MODPATH/app_v2.xml" /my_stock/etc/config/app_v2.xml
 mount -o ro,bind "$MODPATH/app_v2.xml" /my_region/etc/config/app_v2.xml
 
+# Apply Play Integrity Fix if enabled
+if [ -f "$MODPATH/pif_enabled" ]; then
+    resetprop -n ro.boot.verifiedbootstate green
+    resetprop -n ro.boot.flash.locked 1
+    resetprop -n ro.boot.vbmeta.device_state locked
+    resetprop -n ro.build.type user
+    resetprop -n ro.build.tags release-keys
+    resetprop -n ro.secure 1
+    resetprop -n ro.debuggable 0
+fi
+
 exit 0
