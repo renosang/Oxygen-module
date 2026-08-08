@@ -128,8 +128,8 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
         setDebloatLog(prev => [...prev, `- Bỏ qua (đã xử lý/không có): ${pkg}`]);
       }
       
-      // Small yield to force React to paint the updated progress and log
-      await new Promise(r => setTimeout(r, 20));
+      // Small yield to force React to paint the updated progress and log smoothly
+      await new Promise(r => setTimeout(r, 50));
     }
     setDebloatLog(prev => [...prev, `✨ Hoàn tất! Đã xử lý ${count}/${bloatwareList.length} ứng dụng.`]);
     setIsDebloating(false);
@@ -268,6 +268,17 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
       setHasFetched(true);
     }
   }, [hasRoot, isActive]);
+
+  // Auto-scroll logs
+  useEffect(() => {
+    const el = document.getElementById('debloat-log');
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [debloatLog]);
+
+  useEffect(() => {
+    const el = document.getElementById('clean-log');
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [cleanLog]);
 
   return (
     <div className="glass-card" style={{ animationDelay: '0.4s', paddingBottom: '80px' }}>
@@ -454,13 +465,13 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   {
     showDebloatModal && (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="glass-card" style={{ width: '90%', maxWidth: '400px', padding: '24px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="glass-card" style={{ width: '90%', maxWidth: '400px', height: '380px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ color: 'white', marginTop: 0 }}>Tiến Trình 1-Click Debloat</h3>
           <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', margin: '16px 0' }}>
             <div style={{ width: `${debloatProgress}%`, height: '100%', background: 'var(--cyan)', transition: 'width 0.3s' }}></div>
           </div>
 
-          <div style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
+          <div id="debloat-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
             {debloatLog.map((log, idx) => {
               if (log.startsWith('✓')) {
                 return <div key={idx} style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginBottom: '4px', textShadow: '0 0 8px rgba(16,185,129,0.3)' }}>{log}</div>;
@@ -484,13 +495,13 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   {
     showCleanModal && (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="glass-card" style={{ width: '90%', maxWidth: '400px', padding: '24px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="glass-card" style={{ width: '90%', maxWidth: '400px', height: '380px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ color: 'white', marginTop: 0 }}>Tiến Trình Dọn Rác Hệ Thống</h3>
           <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', margin: '16px 0' }}>
             <div style={{ width: `${cleanProgress}%`, height: '100%', background: 'var(--accent-red)', transition: 'width 0.3s' }}></div>
           </div>
 
-          <div style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
+          <div id="clean-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
             {cleanLog.map((log, idx) => (
               <div key={idx} style={{ color: log.startsWith('✨') ? 'var(--green)' : 'inherit', marginBottom: '4px' }}>{log}</div>
             ))}
