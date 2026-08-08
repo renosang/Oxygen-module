@@ -288,7 +288,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
       </div>
 
       {logs.length > 0 && (
-        <div style={{ background: 'rgba(0,0,0,0.2)', padding: '8px 12px', borderRadius: '8px', marginBottom: '16px', fontSize: '11px', color: 'var(--cyan)' }}>
+        <div style={{ background: 'rgba(0,0,0,0.2)', padding: '8px 12px', borderRadius: '8px', marginBottom: '16px', fontSize: '11px', color: 'var(--accent-cyan)' }}>
           {logs[0]}
         </div>
       )}
@@ -446,7 +446,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     modalMsg && (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={() => setModalMsg('')}>
         <div className="glass-card" style={{ width: '100%', maxWidth: '320px', padding: '24px', textAlign: 'center', animation: 'scale-up 0.2s ease-out' }} onClick={(e) => e.stopPropagation()}>
-          <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--green)', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+          <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-green)', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
             <ShieldAlert size={24} />
           </div>
           <h3 style={{ color: 'white', marginTop: 0, marginBottom: '8px', fontSize: '18px' }}>Thông Báo</h3>
@@ -468,7 +468,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
         <div className="glass-card" style={{ width: '90%', maxWidth: '400px', height: '380px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ color: 'white', marginTop: 0 }}>Tiến Trình 1-Click Debloat</h3>
           <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', margin: '16px 0' }}>
-            <div style={{ width: `${debloatProgress}%`, height: '100%', background: 'var(--cyan)', transition: 'width 0.3s' }}></div>
+            <div style={{ width: `${debloatProgress}%`, height: '100%', background: 'var(--accent-cyan)', transition: 'width 0.3s' }}></div>
           </div>
 
           <div id="debloat-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
@@ -476,7 +476,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
               if (log.startsWith('✓')) {
                 return <div key={idx} style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginBottom: '4px', textShadow: '0 0 8px rgba(16,185,129,0.3)' }}>{log}</div>;
               } else if (log.startsWith('✨')) {
-                return <div key={idx} style={{ color: 'var(--cyan)', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>{log}</div>;
+                return <div key={idx} style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>{log}</div>;
               } else {
                 return <div key={idx} style={{ color: 'rgba(255,255,255,0.3)', marginBottom: '4px' }}>{log}</div>;
               }
@@ -503,7 +503,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
 
           <div id="clean-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
             {cleanLog.map((log, idx) => (
-              <div key={idx} style={{ color: log.startsWith('✨') ? 'var(--green)' : 'inherit', marginBottom: '4px' }}>{log}</div>
+              <div key={idx} style={{ color: log.startsWith('✨') ? 'var(--accent-green)' : 'inherit', marginBottom: '4px' }}>{log}</div>
             ))}
           </div>
 
