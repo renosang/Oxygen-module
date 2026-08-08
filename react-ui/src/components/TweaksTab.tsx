@@ -281,7 +281,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   }, [cleanLog]);
 
   return (
-    <div className="glass-card" style={{ animationDelay: '0.4s' }}>
+    <div className="glass-card" style={{ animationDelay: '0.4s', display: 'flex', flexDirection: 'column', height: '100%', paddingBottom: '16px' }}>
       <div className="card-title" style={{ marginBottom: '16px' }}>
         <Settings2 className="text-cyan" size={20} />
         <span>Tiện Ích Mở Rộng & Tối Ưu</span>
@@ -293,7 +293,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
         </div>
       )}
 
-      <div className="list-container" style={{ paddingRight: '4px' }}>
+      <div className="list-container" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
 
         {/* Google Photos */}
         <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
@@ -435,21 +435,30 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
         </div>
       </div>
 
-      {/* Deep Clean */}
-      <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-red)', background: 'rgba(239, 68, 68, 0.1)' }}>
-            <Trash2 size={20} />
-          </div>
-          <div className="item-info">
-            <span className="item-title">Dọn Rác Hệ Thống (Deep Clean)</span>
-            <span className="item-desc">Xóa log, ANR, tombstones và cache toàn máy</span>
-          </div>
+      <button 
+        className="btn" 
+        style={{ 
+          width: '100%', 
+          padding: '16px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          gap: '8px', 
+          background: 'linear-gradient(45deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05))', 
+          border: '1px dashed rgba(239, 68, 68, 0.4)', 
+          borderRadius: '16px', 
+          color: 'var(--accent-red)', 
+          marginTop: '12px',
+          transition: 'all 0.3s'
+        }} 
+        onClick={runDeepClean}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '15px' }}>
+          <Sparkles size={18} /> Dọn Dẹp Chuyên Sâu
         </div>
-        <button className="btn btn-primary" style={{ width: '100%', background: 'linear-gradient(45deg, var(--accent-red), #b91c1c)', boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)' }} onClick={runDeepClean}>
-          <Sparkles size={16} style={{ marginRight: '6px' }} /> Bắt Đầu Dọn Dẹp Chuyên Sâu
-        </button>
-      </div>
+        <span style={{ fontSize: '11px', color: 'var(--text-sub)', fontWeight: 'normal' }}>Xóa log, ANR, tombstones và cache toàn máy</span>
+      </button>
 
     </div>
 
