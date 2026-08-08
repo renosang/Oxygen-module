@@ -281,7 +281,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   }, [cleanLog]);
 
   return (
-    <div className="glass-card" style={{ animationDelay: '0.4s', paddingBottom: '80px' }}>
+    <div className="glass-card" style={{ animationDelay: '0.4s', marginBottom: '80px' }}>
       <div className="card-title" style={{ marginBottom: '16px' }}>
         <Settings2 className="text-cyan" size={20} />
         <span>Tiện Ích Mở Rộng & Tối Ưu</span>
@@ -435,9 +435,21 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
         </div>
       </div>
 
-      <button className="btn" style={{ width: '100%', padding: '16px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--accent-red)', border: '1px dashed rgba(239, 68, 68, 0.3)' }} onClick={runDeepClean}>
-        <Trash2 size={18} style={{ marginRight: '8px' }} /> Dọn Rác & Cache Hệ Thống Chuyên Sâu
-      </button>
+      {/* Deep Clean */}
+      <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+          <div className="item-icon" style={{ color: 'var(--accent-red)', background: 'rgba(239, 68, 68, 0.1)' }}>
+            <Trash2 size={20} />
+          </div>
+          <div className="item-info">
+            <span className="item-title">Dọn Rác Hệ Thống (Deep Clean)</span>
+            <span className="item-desc">Xóa log, ANR, tombstones và cache toàn máy</span>
+          </div>
+        </div>
+        <button className="btn btn-primary" style={{ width: '100%', background: 'linear-gradient(45deg, var(--accent-red), #b91c1c)', boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)' }} onClick={runDeepClean}>
+          <Sparkles size={16} style={{ marginRight: '6px' }} /> Bắt Đầu Dọn Dẹp Chuyên Sâu
+        </button>
+      </div>
 
     </div>
 
