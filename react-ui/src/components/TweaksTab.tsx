@@ -281,7 +281,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   }, [cleanLog]);
 
   return (
-    <div className="glass-card" style={{ animationDelay: '0.4s', marginBottom: '80px' }}>
+    <div className="glass-card" style={{ animationDelay: '0.4s' }}>
       <div className="card-title" style={{ marginBottom: '16px' }}>
         <Settings2 className="text-cyan" size={20} />
         <span>Tiện Ích Mở Rộng & Tối Ưu</span>
@@ -293,7 +293,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
         </div>
       )}
 
-      <div className="list-container" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', paddingRight: '4px' }}>
+      <div className="list-container" style={{ paddingRight: '4px' }}>
 
         {/* Google Photos */}
         <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
