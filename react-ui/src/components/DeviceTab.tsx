@@ -52,9 +52,12 @@ export default function DeviceTab({ isActive }: { isActive: boolean }) {
         `, 2000),
         runShell(`
           z=""; m="";
-          ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i 'zygisk' >/dev/null && z="Zygisk"
-          ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i 'shamiko' >/dev/null && m="Shamiko"
-          ls /data/adb/modules /data/adb/ksu/modules /data/adb/ap/modules 2>/dev/null | grep -i -E 'meta|^Tricky' >/dev/null && m="Meta"
+          # Kiểm tra trạng thái thực tế (Real Status) bằng cách soi memory map của tiến trình Zygote
+          for pid in $(pidof zygote64 2>/dev/null) $(pidof zygote 2>/dev/null); do
+            if grep -qi 'zygisk' /proc/$pid/maps 2>/dev/null; then z="Zygisk"; fi
+            if grep -qi 'shamiko' /proc/$pid/maps 2>/dev/null; then m="Shamiko"; fi
+            if grep -qiE 'meta|^Tricky' /proc/$pid/maps 2>/dev/null; then m="Meta"; fi
+          done
           echo "$z|$m"
         `, 2000),
         runShell(`
