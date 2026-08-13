@@ -140,27 +140,19 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     setDebloatApps([]);
     
     try {
-      const pkgList = DEBLOAT_LIST.map(a => a.pkg).join(' ');
-      const checkCmd = `
-        for p in ${pkgList}; do
-          if pm list packages -u $p | grep -q "package:$p$"; then
-            if pm list packages -d $p | grep -q "package:$p$"; then
-              echo "$p:DISABLED"
-            else
-              echo "$p:ENABLED"
-            fi
-          fi
-        done
-      `;
-      const res = await runShell(checkCmd);
-      const outputLines = res.stdout.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      // Dùng grep -E trực tiếp trên thiết bị để lọc các nhóm package có nguy cơ, giảm kích thước lệnh truyền vào và kết quả trả về.
+      const [allRes, disabledRes] = await Promise.all([
+        runShell("pm list packages -u | grep -E 'heytap|coloros|oplus|oppo|oneplus|facebook|netflix'"),
+        runShell("pm list packages -d | grep -E 'heytap|coloros|oplus|oppo|oneplus|facebook|netflix'")
+      ]);
+      
+      const allPkgs = allRes.stdout.split('\n').filter(l => l.includes('package:')).map(l => l.replace('package:', '').trim());
+      const disabledPkgs = disabledRes.stdout.split('\n').filter(l => l.includes('package:')).map(l => l.replace('package:', '').trim());
       
       const parsedApps = DEBLOAT_LIST.map(app => {
-        const line = outputLines.find(l => l.startsWith(app.pkg + ':'));
-        if (line) {
-          return { ...app, available: true, disabled: line.includes('DISABLED') };
-        }
-        return { ...app, available: false, disabled: false };
+        const available = allPkgs.includes(app.pkg);
+        const disabled = disabledPkgs.includes(app.pkg);
+        return { ...app, available, disabled };
       }).filter(app => app.available);
       
       setDebloatApps(parsedApps);
