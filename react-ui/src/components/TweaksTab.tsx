@@ -22,31 +22,44 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
 
   // Modal Debloat
   const [showDebloatModal, setShowDebloatModal] = useState(false);
-  const [debloatProgress, setDebloatProgress] = useState(0);
-  const [debloatLog, setDebloatLog] = useState<string[]>([]);
-  const [isDebloating, setIsDebloating] = useState(false);
 
-  const bloatwareList = [
-    // Oppo / HeyTap / ColorOS
-    "com.heytap.market", "com.heytap.themestore", "com.heytap.browser", "com.heytap.cloud",
-    "com.heytap.usercenter", "com.heytap.smarthome", "com.heytap.music", "com.heytap.video",
-    "com.heytap.pictorial", "com.heytap.habit.analysis", "com.heytap.speechassist", "com.heytap.reader",
-    "com.coloros.gamespace", "com.coloros.childrenspace", "com.coloros.focusmode", "com.coloros.wallet",
-    "com.coloros.weather.service", "com.coloros.weather2", "com.coloros.video", "com.coloros.gamespaceui",
-    "com.coloros.securepay", "com.coloros.compass2",
-    "com.oplus.appmarket", "com.oplus.theme", "com.oplus.pay", "com.oplus.community",
-    "com.oplus.games", "com.oplus.safecenter", "com.oplus.breeno", "com.oplus.vending",
-    "com.oplus.music", "com.oplus.atlas", "com.oppo.music", "com.oppo.usercenter",
-    "com.oppo.market", "com.oppo.reader", "com.oppo.store", "com.oppo.book", "com.oppo.quicksearchbox",
+  type DebloatApp = {
+    pkg: string;
+    name: string;
+    desc: string;
+    risk: 'Low' | 'Medium' | 'High';
+    available?: boolean;
+    disabled?: boolean;
+  };
 
+  const DEBLOAT_LIST: DebloatApp[] = [
+    // Oppo / ColorOS
+    { pkg: "com.heytap.market", name: "App Market", desc: "Chợ ứng dụng mặc định", risk: "Low" },
+    { pkg: "com.heytap.themestore", name: "Theme Store", desc: "Cửa hàng chủ đề", risk: "Low" },
+    { pkg: "com.heytap.browser", name: "Browser", desc: "Trình duyệt mặc định", risk: "Low" },
+    { pkg: "com.heytap.cloud", name: "HeyTap Cloud", desc: "Đồng bộ đám mây", risk: "Medium" },
+    { pkg: "com.heytap.usercenter", name: "User Center", desc: "Trung tâm người dùng", risk: "Medium" },
+    { pkg: "com.heytap.smarthome", name: "Smart Home", desc: "Quản lý thiết bị IoT", risk: "Low" },
+    { pkg: "com.coloros.gamespace", name: "Game Space", desc: "Không gian trò chơi", risk: "Low" },
+    { pkg: "com.coloros.childrenspace", name: "Kid Space", desc: "Không gian trẻ em", risk: "Low" },
+    { pkg: "com.coloros.wallet", name: "Wallet", desc: "Ví điện tử mặc định", risk: "Medium" },
+    { pkg: "com.coloros.weather.service", name: "Weather Service", desc: "Dịch vụ thời tiết", risk: "Low" },
+    { pkg: "com.coloros.securepay", name: "Secure Pay", desc: "Bảo mật thanh toán", risk: "High" },
+    { pkg: "com.oplus.pay", name: "OPlus Pay", desc: "Dịch vụ thanh toán", risk: "High" },
+    { pkg: "com.oplus.games", name: "Games", desc: "Trò chơi", risk: "Low" },
+    { pkg: "com.oplus.safecenter", name: "Safe Center", desc: "Trung tâm bảo mật", risk: "Medium" },
+    { pkg: "com.oplus.breeno", name: "Breeno", desc: "Trợ lý ảo", risk: "Low" },
+    { pkg: "com.oppo.music", name: "Music", desc: "Trình phát nhạc", risk: "Low" },
     // OnePlus Specific
-    "com.oneplus.mall", "com.oneplus.account", "com.oneplus.membership",
-    "com.oneplus.gamespace", "com.oneplus.note", "com.oneplus.health.out",
-    "com.oneplus.tvremote", "com.oneplus.cloud",
-
-    // Third Party & Trackers
-    "com.facebook.appmanager", "com.facebook.services", "com.facebook.system",
-    "com.netflix.partner.activation", "com.amazon.mShop.android.shopping"
+    { pkg: "com.oneplus.mall", name: "OnePlus Store", desc: "Cửa hàng mua sắm", risk: "Low" },
+    { pkg: "com.oneplus.account", name: "OnePlus Account", desc: "Tài khoản OnePlus", risk: "Medium" },
+    { pkg: "com.oneplus.gamespace", name: "OP Game Space", desc: "Không gian trò chơi OP", risk: "Low" },
+    { pkg: "com.oneplus.tvremote", name: "TV Remote", desc: "Điều khiển TV", risk: "Low" },
+    // Third Party
+    { pkg: "com.facebook.appmanager", name: "FB App Manager", desc: "Quản lý ứng dụng Facebook", risk: "Low" },
+    { pkg: "com.facebook.services", name: "FB Services", desc: "Dịch vụ nền Facebook", risk: "Low" },
+    { pkg: "com.facebook.system", name: "FB System", desc: "Hệ thống Facebook", risk: "Low" },
+    { pkg: "com.netflix.partner.activation", name: "Netflix Activation", desc: "Dịch vụ đối tác Netflix", risk: "Low" }
   ];
 
   const logMsg = (msg: string) => {
@@ -118,35 +131,49 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   };
 
   // 3. Debloat
-  const runDebloat = async (restore: boolean = false) => {
+  const [debloatApps, setDebloatApps] = useState<DebloatApp[]>([]);
+  const [isScanningDebloat, setIsScanningDebloat] = useState(false);
+
+  const openDebloatManager = async () => {
     setShowDebloatModal(true);
-    setIsDebloating(true);
-    setDebloatLog([]);
-    setDebloatProgress(0);
-
-    // Yield to browser to paint the modal before heavy loop
-    await new Promise(r => setTimeout(r, 100));
-
-    let count = 0;
-    for (let i = 0; i < bloatwareList.length; i++) {
-      const pkg = bloatwareList[i];
-      const cmd = restore ? `pm enable ${pkg}` : `pm disable-user --user 0 ${pkg}`;
-      const res = await runShell(cmd);
-
-      setDebloatProgress(Math.round(((i + 1) / bloatwareList.length) * 100));
-
-      if (res.stdout.includes("new state")) {
-        count++;
-        setDebloatLog(prev => [...prev, `✓ ${restore ? 'Khôi phục' : 'Đã xóa'}: ${pkg}`]);
-      } else {
-        setDebloatLog(prev => [...prev, `- Bỏ qua (đã xử lý/không có): ${pkg}`]);
-      }
-
-      // Small yield to force React to paint the updated progress and log smoothly
-      await new Promise(r => setTimeout(r, 50));
+    setIsScanningDebloat(true);
+    setDebloatApps([]);
+    
+    try {
+      const [allRes, disabledRes] = await Promise.all([
+        runShell("pm list packages -u"),
+        runShell("pm list packages -d")
+      ]);
+      
+      const allPkgs = allRes.stdout.split('\n').filter(l => l.startsWith('package:')).map(l => l.replace('package:', '').trim());
+      const disabledPkgs = disabledRes.stdout.split('\n').filter(l => l.startsWith('package:')).map(l => l.replace('package:', '').trim());
+      
+      const parsedApps = DEBLOAT_LIST.map(app => {
+        const available = allPkgs.includes(app.pkg);
+        const disabled = disabledPkgs.includes(app.pkg);
+        return { ...app, available, disabled };
+      }).filter(app => app.available);
+      
+      setDebloatApps(parsedApps);
+    } catch (e) {
+      logMsg("Lỗi khi quét ứng dụng.");
     }
-    setDebloatLog(prev => [...prev, `✨ Hoàn tất! Đã xử lý ${count}/${bloatwareList.length} ứng dụng.`]);
-    setIsDebloating(false);
+    setIsScanningDebloat(false);
+  };
+
+  const toggleDebloatApp = async (pkg: string, disable: boolean) => {
+    const cmd = disable ? `pm disable-user --user 0 ${pkg}` : `pm enable ${pkg}`;
+    await runShell(cmd);
+    setDebloatApps(prev => prev.map(a => a.pkg === pkg ? { ...a, disabled: disable } : a));
+  };
+
+  const disableAllLowRisk = async () => {
+    const lowRiskApps = debloatApps.filter(a => a.risk === 'Low' && !a.disabled);
+    for (const app of lowRiskApps) {
+      await runShell(`pm disable-user --user 0 ${app.pkg}`);
+      setDebloatApps(prev => prev.map(a => a.pkg === app.pkg ? { ...a, disabled: true } : a));
+    }
+    showAlert(`Đã vô hiệu hóa ${lowRiskApps.length} ứng dụng rủi ro thấp!`);
   };
 
   // 4. Removed CPU Profiles
@@ -351,11 +378,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     }
   }, [hasRoot, isActive]);
 
-  // Auto-scroll logs
-  useEffect(() => {
-    const el = document.getElementById('debloat-log');
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [debloatLog]);
+
 
   useEffect(() => {
     const el = document.getElementById('clean-log');
@@ -418,13 +441,12 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
               <Trash2 size={20} />
             </div>
             <div className="item-info">
-              <span className="item-title">1-Click Debloat</span>
-              <span className="item-desc">Vô hiệu hóa ứng dụng rác ColorOS/OxygenOS</span>
+              <span className="item-title">Quản Lý Bloatware</span>
+              <span className="item-desc">Vô hiệu hóa an toàn ứng dụng rác</span>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="btn" style={{ flex: 1, background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-red)' }} onClick={() => runDebloat(false)}>Dọn Rác Ngay</button>
-            <button className="btn" style={{ flex: 1 }} onClick={() => runDebloat(true)}>Khôi Phục</button>
+            <button className="btn btn-primary" style={{ flex: 1 }} onClick={openDebloatManager}>Quản Lý Debloat</button>
           </div>
         </div>
 
@@ -660,26 +682,45 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
       {
         showDebloatModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="glass-card" style={{ width: '90%', maxWidth: '400px', height: '380px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-              <h3 style={{ color: 'white', marginTop: 0 }}>Tiến Trình 1-Click Debloat</h3>
-              <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', margin: '16px 0' }}>
-                <div style={{ width: `${debloatProgress}%`, height: '100%', background: 'var(--accent-cyan)', transition: 'width 0.3s' }}></div>
+            <div className="glass-card" style={{ width: '95%', maxWidth: '450px', height: '500px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ color: 'white', margin: 0 }}>Quản Lý Debloat</h3>
+                <button className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-green)' }} onClick={disableAllLowRisk} disabled={isScanningDebloat}>
+                  Disable All (Low Risk)
+                </button>
+              </div>
+              
+              <div style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px' }}>
+                {isScanningDebloat ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--text-sub)' }}>
+                    Đang quét ứng dụng...
+                  </div>
+                ) : debloatApps.length === 0 ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--text-sub)' }}>
+                    Không tìm thấy ứng dụng rác nào.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {debloatApps.map((app) => (
+                      <div key={app.pkg} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, paddingRight: '12px' }}>
+                          <span style={{ color: 'white', fontWeight: 'bold', fontSize: '13px' }}>{app.name}</span>
+                          <span style={{ color: 'var(--text-sub)', fontSize: '11px' }}>{app.desc}</span>
+                          <span style={{ fontSize: '10px', marginTop: '4px', color: app.risk === 'Low' ? 'var(--accent-green)' : app.risk === 'Medium' ? 'var(--accent-yellow)' : 'var(--accent-red)' }}>
+                            Rủi ro: {app.risk}
+                          </span>
+                        </div>
+                        <div className={`switch ${!app.disabled ? 'active' : ''}`} onClick={() => toggleDebloatApp(app.pkg, !app.disabled)}>
+                          <div className="switch-handle"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div id="debloat-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
-                {debloatLog.map((log, idx) => {
-                  if (log.startsWith('✓')) {
-                    return <div key={idx} style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginBottom: '4px', textShadow: '0 0 8px rgba(16,185,129,0.3)' }}>{log}</div>;
-                  } else if (log.startsWith('✨')) {
-                    return <div key={idx} style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>{log}</div>;
-                  } else {
-                    return <div key={idx} style={{ color: 'rgba(255,255,255,0.3)', marginBottom: '4px' }}>{log}</div>;
-                  }
-                })}
-              </div>
-
-              <button className="btn btn-primary" style={{ marginTop: '16px' }} disabled={isDebloating} onClick={() => setShowDebloatModal(false)}>
-                {isDebloating ? 'Đang Xử Lý...' : 'Đóng'}
+              <button className="btn btn-primary" style={{ marginTop: '16px' }} onClick={() => setShowDebloatModal(false)}>
+                Đóng
               </button>
             </div>
           </div>
