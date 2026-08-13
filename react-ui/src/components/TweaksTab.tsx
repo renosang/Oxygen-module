@@ -140,18 +140,27 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     setDebloatApps([]);
     
     try {
-      const [allRes, disabledRes] = await Promise.all([
-        runShell("pm list packages -u"),
-        runShell("pm list packages -d")
-      ]);
-      
-      const allPkgs = allRes.stdout.split('\n').filter(l => l.startsWith('package:')).map(l => l.replace('package:', '').trim());
-      const disabledPkgs = disabledRes.stdout.split('\n').filter(l => l.startsWith('package:')).map(l => l.replace('package:', '').trim());
+      const pkgList = DEBLOAT_LIST.map(a => a.pkg).join(' ');
+      const checkCmd = `
+        for p in ${pkgList}; do
+          if pm list packages -u $p | grep -q "package:$p$"; then
+            if pm list packages -d $p | grep -q "package:$p$"; then
+              echo "$p:DISABLED"
+            else
+              echo "$p:ENABLED"
+            fi
+          fi
+        done
+      `;
+      const res = await runShell(checkCmd);
+      const outputLines = res.stdout.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       
       const parsedApps = DEBLOAT_LIST.map(app => {
-        const available = allPkgs.includes(app.pkg);
-        const disabled = disabledPkgs.includes(app.pkg);
-        return { ...app, available, disabled };
+        const line = outputLines.find(l => l.startsWith(app.pkg + ':'));
+        if (line) {
+          return { ...app, available: true, disabled: line.includes('DISABLED') };
+        }
+        return { ...app, available: false, disabled: false };
       }).filter(app => app.available);
       
       setDebloatApps(parsedApps);
