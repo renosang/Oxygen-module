@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { useKsu } from './hooks/useKsu';
-import { LayoutDashboard, Snowflake, DownloadCloud, Settings2 } from 'lucide-react';
+import { LayoutDashboard, DownloadCloud, Settings2 } from 'lucide-react';
 import './index.css';
 
 // Import components
 import DeviceTab from './components/DeviceTab';
-import FreezeTab from './components/FreezeTab';
 import ApkTab from './components/ApkTab';
 import TweaksTab from './components/TweaksTab';
 
 function App() {
   const [activeTab, setActiveTab] = useState<string>('info');
   const { hasRoot } = useKsu();
-  const tabs = ['info', 'freeze', 'apk', 'tweaks'];
+  const tabs = ['info', 'apk', 'tweaks'];
 
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
   const [touchEnd, setTouchEnd] = useState({ x: 0, y: 0 });
@@ -96,8 +95,8 @@ function App() {
             position: 'absolute',
             top: '6px', 
             bottom: '6px',
-            width: 'calc(25% - 3px)', // 4 tabs, minus padding
-            left: `calc(${tabs.indexOf(activeTab) * 25}% + 3px)`,
+            width: 'calc(33.333% - 4px)', // 3 tabs, minus padding
+            left: `calc(${tabs.indexOf(activeTab) * 33.333}% + 3px)`,
             background: 'rgba(255, 255, 255, 0.1)',
             boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
             borderRadius: '12px',
@@ -109,10 +108,7 @@ function App() {
             <LayoutDashboard size={20} />
             <span>Tổng Quan</span>
         </button>
-        <button className={`tab-btn ${activeTab === 'freeze' ? 'active' : ''}`} onClick={() => setActiveTab('freeze')}>
-            <Snowflake size={20} />
-            <span>Đóng Băng</span>
-        </button>
+
         <button className={`tab-btn ${activeTab === 'apk' ? 'active' : ''}`} onClick={() => setActiveTab('apk')}>
             <DownloadCloud size={20} />
             <span>Cài APK</span>
@@ -128,16 +124,15 @@ function App() {
         <div 
           style={{ 
             display: 'flex', 
-            width: '400%', 
+            width: '300%', 
             height: '100%', 
             transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)', 
-            transform: `translateX(-${tabs.indexOf(activeTab) * 25}%)` 
+            transform: `translateX(-${tabs.indexOf(activeTab) * 33.333}%)` 
           }}
         >
-          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><DeviceTab isActive={activeTab === 'info'} /></div>
-          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><FreezeTab isActive={activeTab === 'freeze'} /></div>
-          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><ApkTab isActive={activeTab === 'apk'} /></div>
-          <div style={{ width: '25%', height: '100%', overflowY: 'auto' }}><TweaksTab isActive={activeTab === 'tweaks'} /></div>
+          <div style={{ width: '33.333%', height: '100%', overflowY: 'auto' }}><DeviceTab isActive={activeTab === 'info'} /></div>
+          <div style={{ width: '33.333%', height: '100%', overflowY: 'auto' }}><ApkTab isActive={activeTab === 'apk'} /></div>
+          <div style={{ width: '33.333%', height: '100%', overflowY: 'auto' }}><TweaksTab isActive={activeTab === 'tweaks'} /></div>
         </div>
       </div>
     </div>
