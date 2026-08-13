@@ -586,15 +586,15 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
           </div>
         </div>
 
-        {/* Play Integrity Fix */}
+        {/* Property Spoofing */}
         <div className="list-item">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div className="item-icon" style={{ color: 'var(--accent-green)', background: 'rgba(16, 185, 129, 0.1)' }}>
               <ShieldCheck size={20} />
             </div>
             <div className="item-info">
-              <span className="item-title">Play Integrity Fix</span>
-              <span className="item-desc">Vượt SafetyNet / Ẩn Root</span>
+              <span className="item-title">Boot/Build Property Spoof</span>
+              <span className="item-desc">Đổi thuộc tính cơ bản (Basic Hide)</span>
             </div>
           </div>
           <div className={`switch ${playIntegrity ? 'active' : ''}`} onClick={() => applyPlayIntegrity(!playIntegrity)}>
