@@ -30,6 +30,14 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   const [playIntegrity, setPlayIntegrity] = useState(false);
   const [thermal, setThermal] = useState(false);
 
+  const [activeSubTab, setActiveSubTab] = useState<'system' | 'performance' | 'display' | 'security'>('system');
+  const SUBTABS = [
+    { id: 'system', label: 'Hệ Thống' },
+    { id: 'performance', label: 'Hiệu Năng & Mạng' },
+    { id: 'display', label: 'Màn Hình' },
+    { id: 'security', label: 'Bảo Mật' }
+  ] as const;
+
   const [modalMsg, setModalMsg] = useState('');
   const showAlert = (msg: string) => setModalMsg(msg);
   const logMsg = (msg: string) => setLogs(prev => [msg, ...prev].slice(0, 5));
@@ -129,23 +137,54 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
         </div>
       )}
 
+      <div className="sub-nav">
+        <div 
+          className="sub-nav-indicator"
+          style={{
+            width: `calc(100% / ${SUBTABS.length} - 4px)`,
+            left: `calc(${(100 / SUBTABS.length) * SUBTABS.findIndex(t => t.id === activeSubTab)}% + 2px)`,
+          }}
+        />
+        {SUBTABS.map(tab => (
+          <button 
+            key={tab.id}
+            className={`sub-tab-btn ${activeSubTab === tab.id ? 'active' : ''}`}
+            onClick={() => setActiveSubTab(tab.id as any)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       <div className="list-container" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
         
-        <GooglePhotosTweak photosEnabled={photosEnabled} setPhotosEnabled={setPhotosEnabled} showAlert={showAlert} />
-        
-        <AdblockTweak adblockStatus={adblockStatus} setAdblockStatus={setAdblockStatus} adblockDate={adblockDate} setAdblockDate={setAdblockDate} showAlert={showAlert} logMsg={logMsg} />
-        
-        <DebloatTweak showAlert={showAlert} logMsg={logMsg} />
-        
-        <PerformanceTweaks antiKill={antiKill} setAntiKill={setAntiKill} gmsDoze={gmsDoze} setGmsDoze={setGmsDoze} logMsg={logMsg} updateBootScript={updateBootScript} />
-        
-        <DisplayTweaks refreshRate={refreshRate} setRefreshRate={setRefreshRate} animScale={animScale} setAnimScale={setAnimScale} forceFps={forceFps} setForceFps={setForceFps} logMsg={logMsg} updateBootScript={updateBootScript} />
-        
-        <NetworkTweaks dns={dns} setDns={setDns} bbr={bbr} setBbr={setBbr} logMsg={logMsg} updateBootScript={updateBootScript} />
-        
-        <SecurityTweaks playIntegrity={playIntegrity} setPlayIntegrity={setPlayIntegrity} thermal={thermal} setThermal={setThermal} logMsg={logMsg} updateBootScript={updateBootScript} />
-        
-        <CleanTweak logMsg={logMsg} />
+        {activeSubTab === 'system' && (
+          <div className="tab-fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
+            <GooglePhotosTweak photosEnabled={photosEnabled} setPhotosEnabled={setPhotosEnabled} showAlert={showAlert} />
+            <AdblockTweak adblockStatus={adblockStatus} setAdblockStatus={setAdblockStatus} adblockDate={adblockDate} setAdblockDate={setAdblockDate} showAlert={showAlert} logMsg={logMsg} />
+            <DebloatTweak showAlert={showAlert} logMsg={logMsg} />
+            <CleanTweak logMsg={logMsg} />
+          </div>
+        )}
+
+        {activeSubTab === 'performance' && (
+          <div className="tab-fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
+            <PerformanceTweaks antiKill={antiKill} setAntiKill={setAntiKill} gmsDoze={gmsDoze} setGmsDoze={setGmsDoze} logMsg={logMsg} updateBootScript={updateBootScript} />
+            <NetworkTweaks dns={dns} setDns={setDns} bbr={bbr} setBbr={setBbr} logMsg={logMsg} updateBootScript={updateBootScript} />
+          </div>
+        )}
+
+        {activeSubTab === 'display' && (
+          <div className="tab-fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
+            <DisplayTweaks refreshRate={refreshRate} setRefreshRate={setRefreshRate} animScale={animScale} setAnimScale={setAnimScale} forceFps={forceFps} setForceFps={setForceFps} logMsg={logMsg} updateBootScript={updateBootScript} />
+          </div>
+        )}
+
+        {activeSubTab === 'security' && (
+          <div className="tab-fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
+            <SecurityTweaks playIntegrity={playIntegrity} setPlayIntegrity={setPlayIntegrity} thermal={thermal} setThermal={setThermal} logMsg={logMsg} updateBootScript={updateBootScript} />
+          </div>
+        )}
 
       </div>
 
