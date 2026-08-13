@@ -1,4 +1,4 @@
-import { Settings2, Image, ShieldAlert, Monitor, Activity, Trash2, Globe, Sparkles, ShieldCheck, Flame, Zap, Wifi } from 'lucide-react';
+import { Settings2, Image, ShieldAlert, Monitor, Activity, Trash2, Globe, Sparkles, ShieldCheck, Flame, Zap, Wifi, AlertTriangle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useKsu } from '../hooks/useKsu';
 
@@ -505,10 +505,10 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
                   <div className="switch-handle"></div>
                 </div>
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-sub)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ color: 'var(--accent-yellow)' }}>⚠️ Có thể tăng RAM usage</span>
-                <span style={{ color: 'var(--accent-yellow)' }}>⚠️ Có thể tăng battery usage</span>
-                <span style={{ color: 'var(--accent-yellow)' }}>⚠️ Làm thay đổi behavior quản lý tiến trình mặc định</span>
+              <div style={{ fontSize: '11px', color: 'var(--text-sub)', display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                <span style={{ color: 'var(--accent-yellow)', display: 'flex', alignItems: 'center', gap: '4px' }}><AlertTriangle size={12} /> Có thể tăng RAM usage</span>
+                <span style={{ color: 'var(--accent-yellow)', display: 'flex', alignItems: 'center', gap: '4px' }}><AlertTriangle size={12} /> Có thể tăng battery usage</span>
+                <span style={{ color: 'var(--accent-yellow)', display: 'flex', alignItems: 'center', gap: '4px', lineHeight: 1.3 }}><AlertTriangle size={12} style={{ minWidth: '12px' }} /> Làm thay đổi behavior quản lý tiến trình mặc định</span>
               </div>
             </div>
             
