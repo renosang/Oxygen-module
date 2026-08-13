@@ -37,7 +37,8 @@ export default function FreezeTab({ isActive }: { isActive: boolean }) {
     if (!hasRoot) return;
     setLoading(true);
     try {
-      const disRes = await runShell("pm list packages -d 2>/dev/null || cmd package list packages -d 2>/dev/null", 5000);
+      // 1. Lấy danh sách app bị đóng băng
+      const disRes = await runShell("cmd package list packages -d -u --user 0 2>/dev/null || pm list packages -d -u --user 0 2>/dev/null", 5000);
       const disabledMap = new Set<string>();
       if (disRes.stdout) {
         disRes.stdout.split('\n').forEach(line => {
@@ -48,52 +49,75 @@ export default function FreezeTab({ isActive }: { isActive: boolean }) {
 
       let fetchedApps: AppInfo[] = [];
 
+      // 2. Nguồn chính 1: Ưu tiên KSU API (Bypass shell, không bị giới hạn buffer)
       const ksu = (window as any).ksu;
       if (ksu && typeof ksu.listPackages === 'function' && typeof ksu.getPackagesInfo === 'function') {
-        try {
-          const pkgs = JSON.parse(ksu.listPackages("all"));
-          if (pkgs && pkgs.length > 0) {
-            const infos = JSON.parse(ksu.getPackagesInfo(JSON.stringify(pkgs)));
-            fetchedApps = infos.map((info: any) => {
-              return {
-                pkg: info.packageName,
-                label: info.appLabel || info.packageName,
-                isSystem: info.isSystem,
-                isFrozen: disabledMap.has(info.packageName),
-                loading: false,
-                icon: `ksu://icon/${info.packageName}`
-              };
-            });
-          }
-        } catch(e) {
-          console.error("KSU list error", e);
-        }
+         try {
+            const pkgs = JSON.parse(ksu.listPackages("all"));
+            if (pkgs && pkgs.length > 0) {
+               const infos = JSON.parse(ksu.getPackagesInfo(JSON.stringify(pkgs)));
+               fetchedApps = infos.map((info: any) => ({
+                  pkg: info.packageName,
+                  label: info.appLabel || info.packageName,
+                  isSystem: info.isSystem,
+                  isFrozen: disabledMap.has(info.packageName),
+                  loading: false,
+                  icon: `ksu://icon/${info.packageName}`
+               }));
+            }
+         } catch(e) {
+            console.error("KSU list error", e);
+         }
       }
 
+      // 3. Fallback: Nếu Manager chính thức (không có KSU API), dùng shell pm list
+      // Khắc phục triệt để lỗi phân loại nhầm của fallback cũ bằng cờ -3 (User) và -s (System)
       if (fetchedApps.length === 0) {
-         const listRes = await runShell("pm list packages -f -u --user 0 2>/dev/null || cmd package list packages -f -u --user 0 2>/dev/null || pm list packages -f 2>/dev/null", 10000);
-         if (listRes.stdout) {
-            const systemPrefixes = ["com.android", "android", "com.google", "com.qualcomm", "com.oneplus", "com.oem", "com.oplus"];
-            listRes.stdout.split('\n').forEach(line => {
-               line = line.trim();
-               if (!line || !line.includes('=')) return;
-               let pkgName = line.split('=').pop() || '';
-               if (!pkgName || !pkgName.includes('.')) return;
-               
-               let isSystem = true;
-               if (line.includes('/data/app/')) isSystem = false;
-               else {
-                 isSystem = systemPrefixes.some(p => pkgName.startsWith(p));
-               }
-               fetchedApps.push({
-                 pkg: pkgName,
-                 label: pkgName,
-                 isSystem,
-                 isFrozen: disabledMap.has(pkgName),
-                 loading: false
-               });
+         const userRes = await runShell("cmd package list packages -3 -u --user 0 2>/dev/null || pm list packages -3 -u --user 0 2>/dev/null", 5000);
+         const sysRes = await runShell("cmd package list packages -s -u --user 0 2>/dev/null || pm list packages -s -u --user 0 2>/dev/null", 5000);
+
+         const userMap = new Set<string>();
+         if (userRes.stdout) {
+            userRes.stdout.split('\n').forEach(line => {
+               const pkg = line.replace('package:', '').trim();
+               if (pkg) userMap.add(pkg);
             });
          }
+
+         const sysMap = new Set<string>();
+         if (sysRes.stdout) {
+            sysRes.stdout.split('\n').forEach(line => {
+               const pkg = line.replace('package:', '').trim();
+               if (pkg) sysMap.add(pkg);
+            });
+         }
+
+         const allPkgs = new Set([...userMap, ...sysMap]);
+         
+         // Đề phòng trường hợp -3 / -s không chạy được trên một số ROM hiếm
+         if (allPkgs.size === 0) {
+            const allRes = await runShell("cmd package list packages -u --user 0 2>/dev/null || pm list packages -u --user 0 2>/dev/null", 5000);
+            if (allRes.stdout) {
+               allRes.stdout.split('\n').forEach(line => {
+                  const pkg = line.replace('package:', '').trim();
+                  if (pkg) {
+                     allPkgs.add(pkg);
+                     sysMap.add(pkg); // Mặc định là system cho an toàn nếu không phân loại được
+                  }
+               });
+            }
+         }
+
+         allPkgs.forEach(pkg => {
+            fetchedApps.push({
+               pkg,
+               label: pkg,
+               isSystem: sysMap.has(pkg),
+               isFrozen: disabledMap.has(pkg),
+               loading: false,
+               icon: `ksu://icon/${pkg}`
+            });
+         });
       }
       
       fetchedApps.sort((a, b) => {
