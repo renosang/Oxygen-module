@@ -32,18 +32,18 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     "com.heytap.usercenter", "com.heytap.smarthome", "com.heytap.music", "com.heytap.video",
     "com.heytap.pictorial", "com.heytap.habit.analysis", "com.heytap.speechassist", "com.heytap.reader",
     "com.coloros.gamespace", "com.coloros.childrenspace", "com.coloros.focusmode", "com.coloros.wallet",
-    "com.coloros.weather.service", "com.coloros.weather2", "com.coloros.video", "com.coloros.gamespaceui", 
+    "com.coloros.weather.service", "com.coloros.weather2", "com.coloros.video", "com.coloros.gamespaceui",
     "com.coloros.securepay", "com.coloros.compass2",
     "com.oplus.appmarket", "com.oplus.theme", "com.oplus.pay", "com.oplus.community",
-    "com.oplus.games", "com.oplus.safecenter", "com.oplus.breeno", "com.oplus.vending", 
+    "com.oplus.games", "com.oplus.safecenter", "com.oplus.breeno", "com.oplus.vending",
     "com.oplus.music", "com.oplus.atlas", "com.oppo.music", "com.oppo.usercenter",
     "com.oppo.market", "com.oppo.reader", "com.oppo.store", "com.oppo.book", "com.oppo.quicksearchbox",
-    
+
     // OnePlus Specific
-    "com.oneplus.mall", "com.oneplus.account", "com.oneplus.membership", 
+    "com.oneplus.mall", "com.oneplus.account", "com.oneplus.membership",
     "com.oneplus.gamespace", "com.oneplus.note", "com.oneplus.health.out",
     "com.oneplus.tvremote", "com.oneplus.cloud",
-    
+
     // Third Party & Trackers
     "com.facebook.appmanager", "com.facebook.services", "com.facebook.system",
     "com.netflix.partner.activation", "com.amazon.mShop.android.shopping"
@@ -78,6 +78,16 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
   };
 
   // 1. Google Photos
+  const [confirmModal, setConfirmModal] = useState<{ msg: string, onConfirm: () => void } | null>(null);
+
+  const promptEnablePhotos = () => {
+    if (photosEnabled) return;
+    setConfirmModal({
+      msg: "Tính năng này sẽ xóa dữ liệu của ứng dụng Google Photos để áp dụng bản patch (không làm mất ảnh trên Cloud của bạn). Bạn có muốn tiếp tục?",
+      onConfirm: enablePhotos
+    });
+  };
+
   const enablePhotos = async () => {
     logMsg("Đang kích hoạt Google Photos...");
     const modpath = getModPath();
@@ -122,16 +132,16 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
       const pkg = bloatwareList[i];
       const cmd = restore ? `pm enable ${pkg}` : `pm disable-user --user 0 ${pkg}`;
       const res = await runShell(cmd);
-      
+
       setDebloatProgress(Math.round(((i + 1) / bloatwareList.length) * 100));
-      
+
       if (res.stdout.includes("new state")) {
         count++;
         setDebloatLog(prev => [...prev, `✓ ${restore ? 'Khôi phục' : 'Đã xóa'}: ${pkg}`]);
       } else {
         setDebloatLog(prev => [...prev, `- Bỏ qua (đã xử lý/không có): ${pkg}`]);
       }
-      
+
       // Small yield to force React to paint the updated progress and log smoothly
       await new Promise(r => setTimeout(r, 50));
     }
@@ -211,27 +221,27 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     setIsCleaning(true);
     setCleanLog(["Đang khởi tạo công cụ dọn dẹp..."]);
     setCleanProgress(10);
-    
+
     await new Promise(r => setTimeout(r, 500));
     setCleanLog(prev => [...prev, "Đang quét Log hệ thống (/data/log)..."]);
     await runShell(`rm -rf /data/log/*`);
     setCleanProgress(30);
-    
+
     await new Promise(r => setTimeout(r, 500));
     setCleanLog(prev => [...prev, "Đang xóa Crash logs (Tombstones)..."]);
     await runShell(`rm -rf /data/tombstones/*`);
     setCleanProgress(50);
-    
+
     await new Promise(r => setTimeout(r, 500));
     setCleanLog(prev => [...prev, "Đang dọn dẹp ANR & Temp files..."]);
     await runShell(`rm -rf /data/anr/*; rm -rf /data/local/tmp/*`);
     setCleanProgress(70);
-    
+
     await new Promise(r => setTimeout(r, 800));
     setCleanLog(prev => [...prev, "Đang Trim Caches cho toàn bộ ứng dụng..."]);
     await runShell(`pm trim-caches 9999999999999`);
     setCleanProgress(100);
-    
+
     setCleanLog(prev => [...prev, "✨ Hoàn tất! Đã giải phóng không gian bộ nhớ."]);
     setIsCleaning(false);
     logMsg("Dọn dẹp hệ thống thành công!");
@@ -378,7 +388,7 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
               <span className="item-desc">Sao lưu ảnh không giới hạn</span>
             </div>
           </div>
-          <button className={`btn ${photosEnabled ? 'btn-cancel' : 'btn-primary'}`} style={{ width: '100%' }} onClick={enablePhotos}>
+          <button className={`btn ${photosEnabled ? 'btn-cancel' : 'btn-primary'}`} style={{ width: '100%' }} onClick={promptEnablePhotos}>
             {photosEnabled ? 'Đã Kích Hoạt (Khởi động lại máy)' : 'Kích Hoạt Tính Năng Này'}
           </button>
         </div>
@@ -393,284 +403,312 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
               <span className="item-title">Systemless Ad-Blocker</span>
               <span className="item-desc">Chặn quảng cáo qua Hosts <br />{adblockStatus && <span className="text-green">(Đang bật)</span>}</span>
             </div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className={`btn ${adblockStatus ? 'btn-cancel' : 'btn-primary'}`} style={{ flex: 1 }} onClick={toggleAdblock}>
-            {adblockStatus ? 'Tắt Adblock' : 'Bật Adblock'}
-          </button>
-        </div>
-      </div>
-
-      {/* Debloat */}
-      <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-green)', background: 'rgba(16, 185, 129, 0.1)' }}>
-            <Trash2 size={20} />
           </div>
-          <div className="item-info">
-            <span className="item-title">1-Click Debloat</span>
-            <span className="item-desc">Vô hiệu hóa ứng dụng rác ColorOS/OxygenOS</span>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn" style={{ flex: 1, background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-red)' }} onClick={() => runDebloat(false)}>Dọn Rác Ngay</button>
-          <button className="btn" style={{ flex: 1 }} onClick={() => runDebloat(true)}>Khôi Phục</button>
-        </div>
-      </div>
-
-      {/* Performance Profiles Removed */}
-      {/* Anti-Kill & GMS Doze */}
-      <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-purple)', background: 'rgba(168, 85, 247, 0.1)' }}>
-            <Activity size={20} />
-          </div>
-          <div className="item-info">
-            <span className="item-title">Tối Ưu Đa Nhiệm & Pin</span>
-            <span className="item-desc">Kiểm soát RAM & Google Services</span>
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'white' }}>Chống văng App (Anti-Kill)</span>
-            <div className={`switch ${antiKill ? 'active' : ''}`} onClick={() => applyAntiKill(!antiKill)}></div>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'white' }}>Tiết kiệm Pin GMS (Doze)</span>
-            <div className={`switch ${gmsDoze ? 'active' : ''}`} onClick={() => applyGmsDoze(!gmsDoze)}></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Refresh Rate */}
-      <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-blue)', background: 'rgba(59, 130, 246, 0.1)' }}>
-            <Monitor size={20} />
-          </div>
-          <div className="item-info">
-            <span className="item-title">Tần Số Quét Màn Hình</span>
-            <span className="item-desc">Khóa hoặc Auto Refresh Rate</span>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <button className={`btn ${refreshRate as any === 'auto' ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyRefreshRate('auto')}>Tương Thích</button>
-          {[60, 90, 120].map(r => (
-            <button key={r} className={`btn ${refreshRate === r ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyRefreshRate(r)}>{r}Hz</button>
-          ))}
-        </div>
-      </div>
-
-      {/* Animations & DPI */}
-      <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-orange)', background: 'rgba(249, 115, 22, 0.1)' }}>
-            <Sparkles size={20} />
-          </div>
-          <div className="item-info">
-            <span className="item-title">Giao Diện & Hoạt Ảnh</span>
-            <span className="item-desc">Tốc độ chuyển cảnh và Độ phân giải</span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className={`btn ${adblockStatus ? 'btn-cancel' : 'btn-primary'}`} style={{ flex: 1 }} onClick={toggleAdblock}>
+              {adblockStatus ? 'Tắt Adblock' : 'Bật Adblock'}
+            </button>
           </div>
         </div>
 
-        <div style={{ fontSize: '12px', color: 'white', marginBottom: '8px' }}>Tốc Độ Hiệu Ứng</div>
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
-          <button className={`btn ${animScale === 1 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(1)}>Mặc định</button>
-          <button className={`btn ${animScale === 0.5 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(0.5)}>Nhanh 0.5x</button>
-          <button className={`btn ${animScale === 0 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(0)}>Tắt hẳn</button>
-        </div>
-
-        <div style={{ fontSize: '12px', color: 'white', marginBottom: '8px' }}>Điều Chỉnh DPI</div>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('reset')}>Mặc định</button>
-          <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('450')}>Vừa (450)</button>
-          <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('500')}>Nhỏ (500)</button>
-        </div>
-      </div>
-
-      {/* DNS */}
-      <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.1)' }}>
-            <Globe size={20} />
+        {/* Debloat */}
+        <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-green)', background: 'rgba(16, 185, 129, 0.1)' }}>
+              <Trash2 size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">1-Click Debloat</span>
+              <span className="item-desc">Vô hiệu hóa ứng dụng rác ColorOS/OxygenOS</span>
+            </div>
           </div>
-          <div className="item-info">
-            <span className="item-title">Đổi DNS Cấp Tốc</span>
-            <span className="item-desc">Vượt rào / Chặn QC qua DNS</span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className="btn" style={{ flex: 1, background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-red)' }} onClick={() => runDebloat(false)}>Dọn Rác Ngay</button>
+            <button className="btn" style={{ flex: 1 }} onClick={() => runDebloat(true)}>Khôi Phục</button>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          <button className={`btn ${dns === 'default' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('default')}>Mặc Định</button>
-          <button className={`btn ${dns === 'cloudflare' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('cloudflare')}>1.1.1.1</button>
-          <button className={`btn ${dns === 'google' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('google')}>Google</button>
-          <button className={`btn ${dns === 'adguard' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('adguard')}>AdGuard</button>
-        </div>
-      </div>
 
-      {/* Play Integrity Fix */}
-      <div className="list-item">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-green)', background: 'rgba(16, 185, 129, 0.1)' }}>
-            <ShieldCheck size={20} />
+        {/* Performance Profiles Removed */}
+        {/* Anti-Kill & GMS Doze */}
+        <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-purple)', background: 'rgba(168, 85, 247, 0.1)' }}>
+              <Activity size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">Tối Ưu Đa Nhiệm & Pin</span>
+              <span className="item-desc">Kiểm soát RAM & Google Services</span>
+            </div>
           </div>
-          <div className="item-info">
-            <span className="item-title">Play Integrity Fix</span>
-            <span className="item-desc">Vượt SafetyNet / Ẩn Root</span>
-          </div>
-        </div>
-        <div className={`switch ${playIntegrity ? 'active' : ''}`} onClick={() => applyPlayIntegrity(!playIntegrity)}>
-          <div className="switch-handle"></div>
-        </div>
-      </div>
-
-      {/* Unlock FPS */}
-      <div className="list-item">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.1)' }}>
-            <Zap size={20} />
-          </div>
-          <div className="item-info">
-            <span className="item-title">Ép Xung Màn Hình (Game)</span>
-            <span className="item-desc">Khóa cứng 120/144Hz tối đa</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px' }}>
+              <span style={{ fontSize: '12px', color: 'white' }}>Chống văng App (Anti-Kill)</span>
+              <div className={`switch ${antiKill ? 'active' : ''}`} onClick={() => applyAntiKill(!antiKill)}></div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px' }}>
+              <span style={{ fontSize: '12px', color: 'white' }}>Tiết kiệm Pin GMS (Doze)</span>
+              <div className={`switch ${gmsDoze ? 'active' : ''}`} onClick={() => applyGmsDoze(!gmsDoze)}></div>
+            </div>
           </div>
         </div>
-        <div className={`switch ${forceFps ? 'active' : ''}`} onClick={() => applyForceFps(!forceFps)}>
-          <div className="switch-handle"></div>
-        </div>
-      </div>
 
-      {/* Disable Thermal Throttling */}
-      <div className="list-item">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-red)', background: 'rgba(239, 68, 68, 0.1)' }}>
-            <Flame size={20} />
+        {/* Refresh Rate */}
+        <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-blue)', background: 'rgba(59, 130, 246, 0.1)' }}>
+              <Monitor size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">Tần Số Quét Màn Hình</span>
+              <span className="item-desc">Khóa hoặc Auto Refresh Rate</span>
+            </div>
           </div>
-          <div className="item-info">
-            <span className="item-title">Hiệu Năng Tối Đa</span>
-            <span className="item-desc">Gỡ bỏ giới hạn nhiệt độ (Gây nóng máy)</span>
-          </div>
-        </div>
-        <div className={`switch ${thermal ? 'active' : ''}`} onClick={() => applyThermal(!thermal)}>
-          <div className="switch-handle"></div>
-        </div>
-      </div>
-
-      {/* TCP BBR */}
-      <div className="list-item">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div className="item-icon" style={{ color: 'var(--accent-blue)', background: 'rgba(59, 130, 246, 0.1)' }}>
-            <Wifi size={20} />
-          </div>
-          <div className="item-info">
-            <span className="item-title">Tăng Tốc Mạng (TCP BBR)</span>
-            <span className="item-desc">Giảm Ping, tăng tốc độ mạng</span>
-          </div>
-        </div>
-        <div className={`switch ${bbr ? 'active' : ''}`} onClick={() => applyBbr(!bbr)}>
-          <div className="switch-handle"></div>
-        </div>
-      </div>
-
-      <button 
-        className="btn" 
-        style={{ 
-          width: '100%', 
-          padding: '16px', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          gap: '8px', 
-          background: 'linear-gradient(45deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05))', 
-          border: '1px dashed rgba(239, 68, 68, 0.4)', 
-          borderRadius: '16px', 
-          color: 'var(--accent-red)', 
-          marginTop: '12px',
-          transition: 'all 0.3s'
-        }} 
-        onClick={runDeepClean}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '15px' }}>
-          <Sparkles size={18} /> Dọn Dẹp Chuyên Sâu
-        </div>
-        <span style={{ fontSize: '11px', color: 'var(--text-sub)', fontWeight: 'normal' }}>Xóa log, ANR, tombstones và cache toàn máy</span>
-      </button>
-
-    </div>
-
-      {/* Custom Alert Modal */ }
-  {
-    modalMsg && (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={() => setModalMsg('')}>
-        <div className="glass-card" style={{ width: '100%', maxWidth: '320px', padding: '24px', textAlign: 'center', animation: 'scale-up 0.2s ease-out' }} onClick={(e) => e.stopPropagation()}>
-          <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-green)', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
-            <ShieldAlert size={24} />
-          </div>
-          <h3 style={{ color: 'white', marginTop: 0, marginBottom: '8px', fontSize: '18px' }}>Thông Báo</h3>
-          <p style={{ color: 'var(--text-sub)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.5 }}>
-            {modalMsg}
-          </p>
-          <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setModalMsg('')}>
-            Đóng
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  {/* Debloat Modal */ }
-  {
-    showDebloatModal && (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="glass-card" style={{ width: '90%', maxWidth: '400px', height: '380px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-          <h3 style={{ color: 'white', marginTop: 0 }}>Tiến Trình 1-Click Debloat</h3>
-          <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', margin: '16px 0' }}>
-            <div style={{ width: `${debloatProgress}%`, height: '100%', background: 'var(--accent-cyan)', transition: 'width 0.3s' }}></div>
-          </div>
-
-          <div id="debloat-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
-            {debloatLog.map((log, idx) => {
-              if (log.startsWith('✓')) {
-                return <div key={idx} style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginBottom: '4px', textShadow: '0 0 8px rgba(16,185,129,0.3)' }}>{log}</div>;
-              } else if (log.startsWith('✨')) {
-                return <div key={idx} style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>{log}</div>;
-              } else {
-                return <div key={idx} style={{ color: 'rgba(255,255,255,0.3)', marginBottom: '4px' }}>{log}</div>;
-              }
-            })}
-          </div>
-
-          <button className="btn btn-primary" style={{ marginTop: '16px' }} disabled={isDebloating} onClick={() => setShowDebloatModal(false)}>
-            {isDebloating ? 'Đang Xử Lý...' : 'Đóng'}
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  {/* Deep Clean Modal */ }
-  {
-    showCleanModal && (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="glass-card" style={{ width: '90%', maxWidth: '400px', height: '380px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-          <h3 style={{ color: 'white', marginTop: 0 }}>Tiến Trình Dọn Rác Hệ Thống</h3>
-          <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', margin: '16px 0' }}>
-            <div style={{ width: `${cleanProgress}%`, height: '100%', background: 'var(--accent-red)', transition: 'width 0.3s' }}></div>
-          </div>
-
-          <div id="clean-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
-            {cleanLog.map((log, idx) => (
-              <div key={idx} style={{ color: log.startsWith('✨') ? 'var(--accent-green)' : 'inherit', marginBottom: '4px' }}>{log}</div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button className={`btn ${refreshRate as any === 'auto' ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyRefreshRate('auto')}>Tương Thích</button>
+            {[60, 90, 120].map(r => (
+              <button key={r} className={`btn ${refreshRate === r ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyRefreshRate(r)}>{r}Hz</button>
             ))}
           </div>
-
-          <button className="btn btn-primary" style={{ marginTop: '16px' }} disabled={isCleaning} onClick={() => setShowCleanModal(false)}>
-            {isCleaning ? 'Đang Dọn Dẹp...' : 'Đóng'}
-          </button>
         </div>
+
+        {/* Animations & DPI */}
+        <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-orange)', background: 'rgba(249, 115, 22, 0.1)' }}>
+              <Sparkles size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">Giao Diện & Hoạt Ảnh</span>
+              <span className="item-desc">Tốc độ chuyển cảnh và Độ phân giải</span>
+            </div>
+          </div>
+
+          <div style={{ fontSize: '12px', color: 'white', marginBottom: '8px' }}>Tốc Độ Hiệu Ứng</div>
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+            <button className={`btn ${animScale === 1 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(1)}>Mặc định</button>
+            <button className={`btn ${animScale === 0.5 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(0.5)}>Nhanh 0.5x</button>
+            <button className={`btn ${animScale === 0 ? 'btn-primary' : ''}`} style={{ flex: 1, fontSize: '11px' }} onClick={() => applyAnim(0)}>Tắt hẳn</button>
+          </div>
+
+          <div style={{ fontSize: '12px', color: 'white', marginBottom: '8px' }}>Điều Chỉnh DPI</div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('reset')}>Mặc định</button>
+            <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('450')}>Vừa (450)</button>
+            <button className="btn" style={{ flex: 1, fontSize: '11px' }} onClick={() => applyDPI('500')}>Nhỏ (500)</button>
+          </div>
+        </div>
+
+        {/* DNS */}
+        <div className="list-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.1)' }}>
+              <Globe size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">Đổi DNS Cấp Tốc</span>
+              <span className="item-desc">Vượt rào / Chặn QC qua DNS</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <button className={`btn ${dns === 'default' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('default')}>Mặc Định</button>
+            <button className={`btn ${dns === 'cloudflare' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('cloudflare')}>1.1.1.1</button>
+            <button className={`btn ${dns === 'google' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('google')}>Google</button>
+            <button className={`btn ${dns === 'adguard' ? 'btn-primary' : ''}`} style={{ flex: '1 1 40%', fontSize: '11px' }} onClick={() => applyDNS('adguard')}>AdGuard</button>
+          </div>
+        </div>
+
+        {/* Play Integrity Fix */}
+        <div className="list-item">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-green)', background: 'rgba(16, 185, 129, 0.1)' }}>
+              <ShieldCheck size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">Play Integrity Fix</span>
+              <span className="item-desc">Vượt SafetyNet / Ẩn Root</span>
+            </div>
+          </div>
+          <div className={`switch ${playIntegrity ? 'active' : ''}`} onClick={() => applyPlayIntegrity(!playIntegrity)}>
+            <div className="switch-handle"></div>
+          </div>
+        </div>
+
+        {/* Unlock FPS */}
+        <div className="list-item">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.1)' }}>
+              <Zap size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">Ép Xung Màn Hình (Game)</span>
+              <span className="item-desc">Khóa cứng 120/144Hz tối đa</span>
+            </div>
+          </div>
+          <div className={`switch ${forceFps ? 'active' : ''}`} onClick={() => applyForceFps(!forceFps)}>
+            <div className="switch-handle"></div>
+          </div>
+        </div>
+
+        {/* Disable Thermal Throttling */}
+        <div className="list-item">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-red)', background: 'rgba(239, 68, 68, 0.1)' }}>
+              <Flame size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">Hiệu Năng Tối Đa</span>
+              <span className="item-desc">Gỡ bỏ giới hạn nhiệt độ (Gây nóng máy)</span>
+            </div>
+          </div>
+          <div className={`switch ${thermal ? 'active' : ''}`} onClick={() => applyThermal(!thermal)}>
+            <div className="switch-handle"></div>
+          </div>
+        </div>
+
+        {/* TCP BBR */}
+        <div className="list-item">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="item-icon" style={{ color: 'var(--accent-blue)', background: 'rgba(59, 130, 246, 0.1)' }}>
+              <Wifi size={20} />
+            </div>
+            <div className="item-info">
+              <span className="item-title">Tăng Tốc Mạng (TCP BBR)</span>
+              <span className="item-desc">Giảm Ping, tăng tốc độ mạng</span>
+            </div>
+          </div>
+          <div className={`switch ${bbr ? 'active' : ''}`} onClick={() => applyBbr(!bbr)}>
+            <div className="switch-handle"></div>
+          </div>
+        </div>
+
+        <button
+          className="btn"
+          style={{
+            width: '100%',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            background: 'linear-gradient(45deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05))',
+            border: '1px dashed rgba(239, 68, 68, 0.4)',
+            borderRadius: '16px',
+            color: 'var(--accent-red)',
+            marginTop: '12px',
+            transition: 'all 0.3s'
+          }}
+          onClick={runDeepClean}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '15px' }}>
+            <Sparkles size={18} /> Dọn Dẹp Chuyên Sâu
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--text-sub)', fontWeight: 'normal' }}>Xóa log, ANR, tombstones và cache toàn máy</span>
+        </button>
+
       </div>
-    )
-  }
+
+      {/* Custom Alert Modal */}
+      {
+        modalMsg && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={() => setModalMsg('')}>
+            <div className="glass-card" style={{ width: '100%', maxWidth: '320px', padding: '24px', textAlign: 'center', animation: 'scale-up 0.2s ease-out' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-green)', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+                <ShieldAlert size={24} />
+              </div>
+              <h3 style={{ color: 'white', marginTop: 0, marginBottom: '8px', fontSize: '18px' }}>Thông Báo</h3>
+              <p style={{ color: 'var(--text-sub)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.5 }}>
+                {modalMsg}
+              </p>
+              <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setModalMsg('')}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Confirm Modal */}
+      {
+        confirmModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+            <div className="glass-card" style={{ width: '100%', maxWidth: '320px', padding: '24px', textAlign: 'center', animation: 'scale-up 0.2s ease-out' }}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-red)', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+                <ShieldAlert size={24} />
+              </div>
+              <h3 style={{ color: 'white', marginTop: 0, marginBottom: '8px', fontSize: '18px' }}>Cảnh Báo</h3>
+              <p style={{ color: 'var(--text-sub)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.5 }}>
+                {confirmModal.msg}
+              </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.1)' }} onClick={() => setConfirmModal(null)}>
+                  Hủy
+                </button>
+                <button className="btn btn-primary" style={{ flex: 1, background: 'var(--accent-red)', borderColor: 'var(--accent-red)', color: 'white' }} onClick={() => {
+                  confirmModal.onConfirm();
+                  setConfirmModal(null);
+                }}>
+                  Tiếp tục
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Debloat Modal */}
+      {
+        showDebloatModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="glass-card" style={{ width: '90%', maxWidth: '400px', height: '380px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ color: 'white', marginTop: 0 }}>Tiến Trình 1-Click Debloat</h3>
+              <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', margin: '16px 0' }}>
+                <div style={{ width: `${debloatProgress}%`, height: '100%', background: 'var(--accent-cyan)', transition: 'width 0.3s' }}></div>
+              </div>
+
+              <div id="debloat-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
+                {debloatLog.map((log, idx) => {
+                  if (log.startsWith('✓')) {
+                    return <div key={idx} style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginBottom: '4px', textShadow: '0 0 8px rgba(16,185,129,0.3)' }}>{log}</div>;
+                  } else if (log.startsWith('✨')) {
+                    return <div key={idx} style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>{log}</div>;
+                  } else {
+                    return <div key={idx} style={{ color: 'rgba(255,255,255,0.3)', marginBottom: '4px' }}>{log}</div>;
+                  }
+                })}
+              </div>
+
+              <button className="btn btn-primary" style={{ marginTop: '16px' }} disabled={isDebloating} onClick={() => setShowDebloatModal(false)}>
+                {isDebloating ? 'Đang Xử Lý...' : 'Đóng'}
+              </button>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Deep Clean Modal */}
+      {
+        showCleanModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="glass-card" style={{ width: '90%', maxWidth: '400px', height: '380px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ color: 'white', marginTop: 0 }}>Tiến Trình Dọn Rác Hệ Thống</h3>
+              <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', margin: '16px 0' }}>
+                <div style={{ width: `${cleanProgress}%`, height: '100%', background: 'var(--accent-red)', transition: 'width 0.3s' }}></div>
+              </div>
+
+              <div id="clean-log" style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-sub)' }}>
+                {cleanLog.map((log, idx) => (
+                  <div key={idx} style={{ color: log.startsWith('✨') ? 'var(--accent-green)' : 'inherit', marginBottom: '4px' }}>{log}</div>
+                ))}
+              </div>
+
+              <button className="btn btn-primary" style={{ marginTop: '16px' }} disabled={isCleaning} onClick={() => setShowCleanModal(false)}>
+                {isCleaning ? 'Đang Dọn Dẹp...' : 'Đóng'}
+              </button>
+            </div>
+          </div>
+        )
+      }
 
     </div >
   );
