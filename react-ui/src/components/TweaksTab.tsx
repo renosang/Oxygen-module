@@ -498,13 +498,25 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px' }}>
-              <span style={{ fontSize: '12px', color: 'white' }}>Chống văng App (Anti-Kill)</span>
-              <div className={`switch ${antiKill ? 'active' : ''}`} onClick={() => applyAntiKill(!antiKill)}></div>
+            <div style={{ display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', color: 'white', fontWeight: 'bold' }}>Chống văng App (Anti-Kill)</span>
+                <div className={`switch ${antiKill ? 'active' : ''}`} onClick={() => applyAntiKill(!antiKill)}>
+                  <div className="switch-handle"></div>
+                </div>
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-sub)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ color: 'var(--accent-yellow)' }}>⚠️ Có thể tăng RAM usage</span>
+                <span style={{ color: 'var(--accent-yellow)' }}>⚠️ Có thể tăng battery usage</span>
+                <span style={{ color: 'var(--accent-yellow)' }}>⚠️ Làm thay đổi behavior quản lý tiến trình mặc định</span>
+              </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px' }}>
-              <span style={{ fontSize: '12px', color: 'white' }}>Tiết kiệm Pin GMS (Doze)</span>
-              <div className={`switch ${gmsDoze ? 'active' : ''}`} onClick={() => applyGmsDoze(!gmsDoze)}></div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px' }}>
+              <span style={{ fontSize: '13px', color: 'white', fontWeight: 'bold' }}>Tiết kiệm Pin GMS (Doze)</span>
+              <div className={`switch ${gmsDoze ? 'active' : ''}`} onClick={() => applyGmsDoze(!gmsDoze)}>
+                <div className="switch-handle"></div>
+              </div>
             </div>
           </div>
         </div>
