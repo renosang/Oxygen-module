@@ -140,14 +140,26 @@ export default function TweaksTab({ isActive }: { isActive: boolean }) {
     setDebloatApps([]);
     
     try {
-      // Dùng grep -E trực tiếp trên thiết bị để lọc các nhóm package có nguy cơ, giảm kích thước lệnh truyền vào và kết quả trả về.
-      const [allRes, disabledRes] = await Promise.all([
-        runShell("pm list packages -u | grep -E 'heytap|coloros|oplus|oppo|oneplus|facebook|netflix'"),
-        runShell("pm list packages -d | grep -E 'heytap|coloros|oplus|oppo|oneplus|facebook|netflix'")
-      ]);
+      // Dùng pm list packages -d để lấy danh sách app đã bị disable (danh sách này thường ngắn, không bị kẹt buffer)
+      const disRes = await runShell("pm list packages -d -u --user 0 2>/dev/null");
+      const disabledPkgs = disRes.stdout.split('\n').filter(l => l.includes('package:')).map(l => l.replace('package:', '').trim());
+
+      let allPkgs: string[] = [];
+      const ksu = (window as any).ksu;
       
-      const allPkgs = allRes.stdout.split('\n').filter(l => l.includes('package:')).map(l => l.replace('package:', '').trim());
-      const disabledPkgs = disabledRes.stdout.split('\n').filter(l => l.includes('package:')).map(l => l.replace('package:', '').trim());
+      // Ưu tiên dùng KSU Native API (giống FreezeTab) để lấy toàn bộ danh sách cực nhanh và không bao giờ bị cắt chuỗi
+      if (ksu && typeof ksu.listPackages === 'function') {
+         try {
+            const pkgs = JSON.parse(ksu.listPackages("all"));
+            if (pkgs && pkgs.length > 0) allPkgs = pkgs;
+         } catch(e) {}
+      }
+
+      // Fallback nếu KSU API không hỗ trợ
+      if (allPkgs.length === 0) {
+         const allRes = await runShell("pm list packages -u 2>/dev/null");
+         allPkgs = allRes.stdout.split('\n').filter(l => l.includes('package:')).map(l => l.replace('package:', '').trim());
+      }
       
       const parsedApps = DEBLOAT_LIST.map(app => {
         const available = allPkgs.includes(app.pkg);
